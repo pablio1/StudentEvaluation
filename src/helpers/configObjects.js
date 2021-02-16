@@ -5,9 +5,15 @@ export function userModulesPermission(userType) {
                 modules: [                    
                     { name: "Dashboard", icon: "fas fa-tachometer-alt", route: "/dashboard" }, 
                     { name: "Notifications", icon: "fas fa-bell", route: "/notifications" },  
-                    { name: "Enrollment", icon: "fas fa-edit", route: "/enrollment" },  
+                    {
+                        name: "Enrollment", icon: "fas fa-edit", route: "/enrollment", 
+                        submodules: [
+                            {name: "Request Subject", icon: "fas fa-minus", route: "/student/requestsubject" },
+                            {name: "Dissolved Subjects", icon: "fas fa-minus", route: "/enrollment/student/dissolved Subjects" }
+                        ],
+                    },
                     //{ name: "Assessment", icon: "fas fa-cash-register", route: "/assessment" },  
-                    { name: "Study Load", icon: "fas fa-book-reader", route: "/studentstudyload" },
+                    //{ name: "Study Load", icon: "fas fa-book-reader", route: "/studentstudyload" },
                     {
                         name: "Prospectus", icon: "fas fa-file", route: "/prospectus",
                         submodules: [

@@ -859,3 +859,14 @@ export function getCurriculum(idNumber) {
                 console.log(error);
             });
 }
+
+export function getStudentRequest(course_code){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_GET_REQUEST_SUBJECT, { course_code: course_code }, {headers})
+            .catch(error => {
+                console.log(error);
+            });
+}

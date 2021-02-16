@@ -131,7 +131,7 @@ class Login extends Component {
                                     <img src={UCLogo160x83} alt="" />
                                 </figure>
                                 <div>
-                                    <div className="divider is-size-6">WEB PORTAL {process.env.REACT_APP_API_UC_LOGIN}</div>
+                                    <div className="divider is-size-6">WEB PORTAL</div>
                                 </div>
                                 {
                                     error && 

@@ -1,4 +1,4 @@
-import React, { Component} from "react";
+import React, { Component, Fragment} from "react";
 import SpinnerGif from '../../assets/sysimg/spinner.gif'
 import { getCurriculum} from '../../helpers/apiCalls';
 import { getLoggedUserDetails, convertTabToYear, convertYearToTab } from '../../helpers/helper';
@@ -6,15 +6,10 @@ import { getLoggedUserDetails, convertTabToYear, convertYearToTab } from '../../
 import ProspectusTabs  from '../../components/elements/ProspectusTabs';
 import ProspectusTable from '../../components/elements/ProspectusTable'
 import ViewSchedule from '../../components/elements/ViewSchedule'
-import { Fragment } from "react";
-import Sample from './Sample';
-import TestingTable from '../../components/elements/TestingTable'
 
 export class Prospectus extends Component {
     
     state = {
-        test: false,
-        sample: "Display sample passed data",
         selectedTab: null ,totalBehind: 0,subjects: null, schedules: null, selectedSubject: null,showModal: false,
         idnumber: null,yearlevel: null, prerequisites: null, grades: null, internal_code:null, subjectDescription: null
     }
@@ -66,7 +61,7 @@ export class Prospectus extends Component {
     }
     render() {
         const {selectedTab, totalBehind, subjects,prerequisites, grades, selectedSubject, schedules,
-                internal_code,subjectDescription,showModal, test, sample} = this.state;
+                internal_code,subjectDescription,showModal} = this.state;
         let loadCurriculumTable = '';
         
         if(subjects)
@@ -116,11 +111,6 @@ export class Prospectus extends Component {
                 <div className="columns">
                     <div className="column is-four-fifths">
 
-                        <button onClick={this.handlerButtonTest}>{test ? "test2": "test"}</button>
-                        <Sample 
-                            sample = {sample} //props
-                        />
-
                         <ProspectusTabs 
                             selectedTab = {selectedTab}
                             totalBehind = {totalBehind}
@@ -131,9 +121,6 @@ export class Prospectus extends Component {
                     </div>
                 </div>
             </div>
-            <TestingTable 
-                subjects = {subjects}
-            />
         </Fragment>
         )
     };

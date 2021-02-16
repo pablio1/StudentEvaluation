@@ -38,6 +38,7 @@ import { Prospectus, ProspectusHeader } from '../Prospectus';
 
 import { userModulesPermission } from '../../helpers/configObjects';
 import { getLoggedUserDetails } from '../../helpers/helper';
+import {RequestSubjects, RequestSubjectHeader} from '../../components/enrollment/RequestSubjects';
 
 
 class Layout extends Component {
@@ -276,6 +277,7 @@ class Layout extends Component {
                                         <div className="is-pulled-left">
                                             <Switch>
                                                 <Route path="/dashboard" component={DashboardHeader} />
+                                                <Route path="/student/requestsubject" component={RequestSubjectHeader} />
                                                 <Route path="/notifications" component={NotificationsHeader} />
                                                 <Route path="/profile" component={ProfileHeader} />
                                                 <Route path="/enrollment/:usertype/:subhead" component={EnrollmentSubHeader} />  
@@ -290,7 +292,7 @@ class Layout extends Component {
                                                 <Route path="/assessment" component={AssessmentHeader} />          
                                                 <Route path="/teachersload" component={TeachersLoadHeader} /> 
                                                 <Route path="/prospectus" component={ProspectusHeader} /> 
-                                                <Route path="/egrade" component={EgradeHeader} />                                
+                                                <Route path="/egrade" component={EgradeHeader} />                              
                                                 <Route component={ERR404Header} />
                                             </Switch>                                   
                                         </div>
@@ -316,6 +318,7 @@ class Layout extends Component {
                                             <Route path="/enrollment/cashier/payment" component={PaymentCheckCashier} />
                                             <Route path="/enrollment/cashier/tracker" component={StudentEnrollmentTracker} />
                                             <Route path="/enrollment/edp/tracker" component={StudentEnrollmentTracker} />
+                                            <Route path="/student/requestsubject" component={RequestSubjects} />
                                             <Route path="/enrollment" component={Enrollment} />
                                             <Route path="/schedules/department" component={Schedules} />
                                             <Route path="/schedules/viewall" component={SchedulesView} />   
