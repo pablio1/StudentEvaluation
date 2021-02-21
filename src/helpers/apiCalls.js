@@ -866,7 +866,27 @@ export function getStudentRequest(course_code){
         'Authorization': 'Bearer ' + store.get("token")
     };
     return axios.post(process.env.REACT_APP_API_GET_REQUEST_SUBJECT, { course_code: course_code }, {headers})
-            .catch(error => {
-                console.log(error);
-            });
+    .catch(error => {
+        console.log(error);
+    });
+}
+export function saveSubjectRequest(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_SAVE_SUBJECT_REQUEST, data, {headers})
+    .catch(error => {
+        console.log(error);
+    });
+}
+export function getStudentRequestSubject(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_GET_STUDENT_REQUEST, {id_number: 55}, {headers})
+    .catch(error => {
+        console.log(error);
+    });
 }
