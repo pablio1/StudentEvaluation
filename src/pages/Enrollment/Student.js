@@ -10,7 +10,7 @@ import SubjectSelection from '../../components/enrollment/SubjectSelection';
 import UploadProofOfPayments from '../../components/enrollment/UploadProofOfPayment';
 import UpdateVerifyEmail from '../../components/enrollment/UpdateVerifyEmail';
 import MainForm from '../Registration/MainForm';
-import RequestSubjects from '../../components/enrollment/RequestSubjects';
+
 
 class Student extends Component {
     state = {

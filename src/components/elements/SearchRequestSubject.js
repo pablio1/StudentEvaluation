@@ -1,21 +1,27 @@
 import React, { Component,Fragment } from 'react';
+import { getLoggedUserDetails,checkRequestedSubject } from "../../helpers/helper";
 
 export default class SearchRequestSubject extends Component {
   render() {
-    const{requestSubjects} = this.props
+    const{requestSubjects,requestedSubjects,handleAddSubjectButton} = this.props
     var count=0;
     var loadListRequestedSubject = requestSubjects ? requestSubjects.map((list, index) => {
-        count++;
-        return (
-            <tr key={index}>
-                <td className="has-text-centered">{list.subject_name}</td>
-                <td className="has-text-centered"></td>
-                <td className="has-text-centered">{list.days}</td>
-                <td className="has-text-centered">{list.time_start}-{list.time_end} {list.mdn}</td>
-                <th className="has-text-centered">{list.status}</th>
-                <td className="has-text-centered"><button className="button is-info is-small">Add</button></td>
-            </tr> 
-        )  
+        if(!checkRequestedSubject(requestedSubjects,list.internal_code))
+        {
+            count++;
+            return (
+                <tr key={index}>
+                    <td className="has-text-centered">{list.subject_name}</td>
+                    <td className="has-text-centered"></td>
+                    <td className="has-text-centered">{list.days}</td>
+                    <td className="has-text-centered">{list.time_start}-{list.time_end} {list.mdn}</td>
+                    <th className="has-text-centered">{list.status}</th>
+                    <td className="has-text-centered">
+                        <button className="button is-info is-small" onClick={() => handleAddSubjectButton(list.internal_code)}>Add</button>
+                    </td>
+                </tr> 
+            )  
+        }
     }):"";
     return (
       <Fragment>
@@ -34,7 +40,6 @@ export default class SearchRequestSubject extends Component {
             <div className="column pt-0 is-hidden-mobile is-hidden-touch"></div> 
             <div className="column pt-0 is-hidden-mobile is-hidden-touch"></div>                
         </div>
-
         <article className="message mb-0 is-small">
             <div className="message-header">
                 <p>Search Result</p>                                

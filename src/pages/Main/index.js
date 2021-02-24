@@ -35,6 +35,7 @@ import Egrade, { EgradeHeader } from '../Egrade';
 import { Profile, ProfileHeader } from '../Profile';
 
 import { Prospectus, ProspectusHeader } from '../Prospectus';
+import { Prospectus2, ProspectusHeader2 } from '../Prospectus/Test.js';
 
 import { userModulesPermission } from '../../helpers/configObjects';
 import { getLoggedUserDetails } from '../../helpers/helper';
@@ -292,6 +293,7 @@ class Layout extends Component {
                                                 <Route path="/assessment" component={AssessmentHeader} />          
                                                 <Route path="/teachersload" component={TeachersLoadHeader} /> 
                                                 <Route path="/prospectus" component={ProspectusHeader} /> 
+                                                <Route path="/student/behind" component={ProspectusHeader2} />  
                                                 <Route path="/egrade" component={EgradeHeader} />                              
                                                 <Route component={ERR404Header} />
                                             </Switch>                                   
@@ -330,6 +332,7 @@ class Layout extends Component {
                                             <Route path="/assessment" component={Assessment} /> 
                                             <Route path="/teachersload" component={TeachersLoad} />
                                             <Route path="/prospectus" component={Prospectus} />
+                                            <Route path="/student/behind" component={Prospectus2} />
                                             <Route path="/egrade" component={Egrade} />                                   
                                             <Route component={ERR404} />
                                         </Switch>                

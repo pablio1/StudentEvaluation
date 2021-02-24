@@ -14,6 +14,7 @@ export default class SelectedSubjects extends Component {
     render() {
         const { selectedSubjects, hasSection, showSubmitBtn, has_nstp, has_pe, section } = this.props;   
         const totalUnitsSelected = getTotalUnitsTaken(selectedSubjects);
+
         const loadSchedules = selectedSubjects ? selectedSubjects.filter(sch => sch.split_type !== "C").map((schedule, index) => {
             const edpCodePropName = schedule.hasOwnProperty("edpcode") ? "edpcode" : "edp_code";
             const splitSchedules = schedule.split_type === "S" ? selectedSubjects.filter(sched => sched.split_code === schedule[edpCodePropName] && sched.split_type!=="S") : "";

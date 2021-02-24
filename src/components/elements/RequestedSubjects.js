@@ -1,10 +1,13 @@
 import React, { Component, Fragment } from 'react';
+import { toStandardTime } from '../../helpers/helper';
 
 export default class RequestedSujects extends Component {
+    
   render() {
-      const{showRequestForm,handleRequestButton,requestedSubjects} =this.props;
-
+      const{showRequestForm,handleRequestButton,requestedSubjects,handleCancelSubjectButton} =this.props;
+        let count = 0;
       var loadRequestedSubjects = requestedSubjects ? requestedSubjects.map((request, index) => {
+          count++;
           return(
               <Fragment>
                     <tr key={index}>
@@ -14,7 +17,9 @@ export default class RequestedSujects extends Component {
                         <td className="has-text-centered">{request.days}</td>
                         <td className="has-text-centered">{request.time_start} - {request.time_end} {request.mdn}</td>
                         <th className="has-text-centered has-text-info">{request.status}</th>
-                        <td className="has-text-centered"><button className="button is-small is-danger">Cancel</button></td>
+                        <td className="has-text-centered">
+                            <button className="button is-small is-danger" onClick={() => handleCancelSubjectButton(request.internal_code)}>Cancel</button>
+                        </td>
                     </tr>        
               </Fragment>
           )
@@ -51,7 +56,11 @@ export default class RequestedSujects extends Component {
                             </tr>
                         </tfoot>
                         <tbody>
-                                  {loadRequestedSubjects}                                                                                                                
+                                  {count > 0 ?loadRequestedSubjects: (
+                                      <tr>
+                                          <td colSpan="7" className="has-text-centered">No Request Found!</td>
+                                      </tr>
+                                  )}                                                                                                                
                         </tbody>
                     </table>
                 </div>

@@ -9,7 +9,7 @@ export function userModulesPermission(userType) {
                         name: "Enrollment", icon: "fas fa-edit", route: "/enrollment", 
                         submodules: [
                             {name: "Request Subject", icon: "fas fa-minus", route: "/student/requestsubject" },
-                            {name: "Dissolved Subjects", icon: "fas fa-minus", route: "/enrollment/student/dissolved Subjects" }
+                            //{name: "Dissolved Subjects", icon: "fas fa-minus", route: "/enrollment/student/dissolved Subjects" }
                         ],
                     },
                     //{ name: "Assessment", icon: "fas fa-cash-register", route: "/assessment" },  
@@ -17,8 +17,8 @@ export function userModulesPermission(userType) {
                     {
                         name: "Prospectus", icon: "fas fa-file", route: "/prospectus",
                         submodules: [
-                            {name: "Behind Subject", icon: "fas fa-minus", route: "/prospectus/student/behind" },
-                            {name: "Suggestion", icon: "fas fa-minus", route: "/prospectus/student/suggestion" },
+                            {name: "Behind Subject", icon: "fas fa-minus", route: "/student/behind" },
+                            //{name: "Suggestion", icon: "fas fa-minus", route: "/prospectus/student/suggestion" },
                         ], 
                     },    
                     { name: "E Grade", icon: "fas fa-table", route: "/egrade" },
@@ -29,6 +29,7 @@ export function userModulesPermission(userType) {
                     { module: "Dashboard", view: true, create: false, update: false, delete: false },
                     { module: "Notifications", view: true, create: false, update: false, delete: false },
                     { module: "Enrollment", view: true, create: true, update: true, delete: false },
+                    { module: "Prospectus", view: true, create: true, update: true, delete: false },
                     { module: "Assessment", view: true, create: false, update: false, delete: false },
                     { module: "Study Load", view: true, create: false, update: false, delete: false },
                     { module: "E Grade", view: true, create: false, update: false, delete: false }

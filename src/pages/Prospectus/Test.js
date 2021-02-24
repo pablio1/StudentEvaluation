@@ -7,7 +7,7 @@ import ProspectusTabs  from '../../components/elements/ProspectusTabs';
 import ProspectusTable from '../../components/elements/ProspectusTable'
 import ViewSchedule from '../../components/elements/ViewSchedule'
 
-export class Prospectus extends Component {
+export class Prospectus2 extends Component {
     
     state = {
         selectedTab: null ,totalBehind: 0,subjects: null, schedules: null, selectedSubject: null,showModal: false,
@@ -126,8 +126,8 @@ export class Prospectus extends Component {
     };
 }
 
-export const ProspectusHeader = () => (
+export const ProspectusHeader2 = () => (
     <div className="title is-4 ml-1">
-        <i className="fas fa-file"></i> Prospectus
+        <i className="fas fa-file"></i> Prospectus 2
     </div> 
 );

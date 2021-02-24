@@ -1,5 +1,6 @@
 import moment from 'moment';
 import store from 'store2';
+import { Redirect } from 'react-router-dom';
 //import axios from 'axios';
 
 export function getLoggedUserDetails(dataType) {
@@ -442,6 +443,7 @@ export function convertToCSV(objArray) {
     return str;
 }
 
+//Prospectus 
 export function convertTabToYear(selectedTab){
     let year = '';
     if(selectedTab == 'first'){
@@ -492,3 +494,52 @@ export function getGrade(grades, internal_code){
     });
     return gGrade;
 }
+
+export function checkRequestedSubject(requestedSubjects, internal_code){
+    let hasOwnProperty = false;
+    if(requestedSubjects == null)
+        return <Redirect to="/login" />;
+    for(var index = 0; index < requestedSubjects.length;  index++){
+        var object = requestedSubjects[index];
+        if(object.internal_code == internal_code){
+            hasOwnProperty = true;
+        }
+    }
+    return hasOwnProperty;
+}
+
+export function toStandardTime(militaryTime) {
+       let hours24 = militaryTime.length === 3 ? parseInt(militaryTime.substring(0,1)) : parseInt(militaryTime.substring(0,2));
+        let hours = ((hours24 + 11) % 12) + 1;
+        let minutes =  militaryTime.length === 3 ? militaryTime.substring(1) : militaryTime.substring(2);
+        return hours + '' + minutes + ' ';
+}
+//time_end: toStandardTime(autoTimeEndSetter(time_start)),
+export function autoTimeEndSetter(time_start){
+    try{
+        var totalInMinutes = (parseInt(time_start.split(":")[0]) * 60) + parseInt(time_start.split(":")[1]);
+
+        var otherMinutes = 90;
+
+        var grandTotal = otherMinutes + totalInMinutes;
+
+        //Now using your own code
+
+        var bookH = Math.floor(grandTotal / 60);
+        var bookM = grandTotal % 60;
+        if(bookH < 10){
+            bookH = "0"+bookH;
+        }
+        if(bookM <10)
+            bookM = "0"+bookM;
+        var bookingDurationToHour = bookH + ':' + bookM;
+        
+        return bookingDurationToHour;
+    }catch(e){
+        
+    }
+     
+
+}
+
+

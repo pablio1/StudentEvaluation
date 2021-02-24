@@ -885,8 +885,29 @@ export function getStudentRequestSubject(data){
         'Access-Control-Allow-Origin': '*',
         'Authorization': 'Bearer ' + store.get("token")
     };
-    return axios.post(process.env.REACT_APP_API_GET_STUDENT_REQUEST, {id_number: 55}, {headers})
+    return axios.post(process.env.REACT_APP_API_GET_STUDENT_REQUEST, {id_number: data}, {headers})
     .catch(error => {
         console.log(error);
     });
 }
+export function addStudentRequest(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_ADD_STUDENT_REQUEST, data, {headers})
+    .catch(error => {
+        console.log(error);
+    });
+}
+export function cancelStudentRequest(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_CANCEL_STUDENT_REQUEST, data, {headers})
+    .catch(error => {
+        console.log(error);
+    });
+}
+
