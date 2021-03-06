@@ -39,11 +39,12 @@ export default class ViewSchedule extends Component {
         return (
             <Fragment>
                 <tr key={index}>
-                    <td>{sched.edp_code}</td>
-                    <td>{sched.subject_type}</td>
-                    <td>{sched.time_start}-{sched.time_end} {sched.mdn}</td>
-                    <td>{sched.days}</td>
-                    <td></td>
+                    <td className="valign pt-0 pb-0">{sched.edp_code}</td>
+                    <td className="valign pt-0 pb-0">{sched.subject_type}</td>
+                    <td className="valign pt-0 pb-0">{sched.time_start}-{sched.time_end} {sched.mdn}</td>
+                    <td className="valign pt-0 pb-0">{sched.days}</td>
+                    <td className="valign pt-0 pb-0">{sched.room}</td>
+                    <td className="valign pt-0 pb-0">{sched.section}</td>
                 </tr>
                 {splitCodes}
             </Fragment>
@@ -86,7 +87,7 @@ export default class ViewSchedule extends Component {
                         <td colSpan="6" className="has-text-left">{selectedSubject}</td>                                 
                     </tr>
                     <tr>
-                        <th colSpan="2">Description {getLoggedUserDetails("coursecode")}</th>
+                        <th colSpan="2">Description</th>
                         <td colSpan="6" className="has-text-left">{subjectDescription}</td>                                 
                     </tr>                                                                             
                 </tbody>

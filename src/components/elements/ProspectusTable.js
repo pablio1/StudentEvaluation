@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import {hasSubjectLab, getGrade } from '../../helpers/helper';
+import {hasSubjectLab, getGrade,getLoggedUserDetails } from '../../helpers/helper';
 export default class ProspectusTable extends Component {
 
+    
     state = {
         selectedSubject: null, internal_code: null, subjectDescription: null,
         grade: 2.9
@@ -18,39 +19,63 @@ export default class ProspectusTable extends Component {
     }
     viewButtonVisibity = (grade) => {
         var visible = false;
-        if((grade > 3.0 || grade === 0 ) && grade != null){
+        if((grade > 3.0 || grade === 0 ) && grade != null && this.props.selectedTab <= getLoggedUserDetails("yearlevel")){
             visible = true;
         }
         return visible;
+    }
+    checkPrerequisiteStatus = (internal_code) =>{
+        const {prerequisites, grades} = this.props;
+        var status= false;
+        var countGrade = 0;
+        var countRemark = 0;
+        var loadRemark = prerequisites? prerequisites.filter(filt => filt.internal_code == internal_code).map((remark, index)=>{
+            countRemark++;
+            var loadGrade = grades ? grades.filter(fil => fil.internal_code == remark.prerequisites).map((grade, key)=>{
+                if( grade.final_grade < 3)
+                    countGrade++;
+            }) : "";
+        }) : "";
+        
+        if(countRemark != 0){
+            if(countRemark != countGrade){
+                status = false;
+            }else{
+                status = true;
+            }
+        }else{
+            status = true;
+        }
+           
+        return status;
     }
   render() {
       const{grade} = this.state
       const {subjects,selectedTab, prerequisites, grades} = this.props;
       var totalUnitsForFirstSem = 0;
-      var evalID = 0;
+      var countRemark = 0;
       //var getPrerequisites = prerequisites ? prerequisites.filter(remark.student)
       var loadFirstSem = subjects? subjects.filter(filt => filt.year_level == selectedTab 
             && filt.semester == 1 && filt.subject_type !== 'L').map((sub, index) => {
                 let labUnit = hasSubjectLab(subjects, sub.subject_name);
                totalUnitsForFirstSem = labUnit + parseInt(sub.units)+ totalUnitsForFirstSem;
+               var getGrades = getGrade(grades, sub.internal_code)
                var getPrerequisites = prerequisites ? prerequisites.filter(remark => remark.internal_code === sub.internal_code).map((rem, i) => {
-                    return (
-                        <span key={i} className="ml-1 tag is-success">{rem.subject_code}</span>
+                    return ( 
+                        <span key={i} className={"ml-1 tag"+ (getGrade(grades,rem.prerequisites) < 3 && getGrade(grades,rem.prerequisites) != 0? " is-success":" is-danger")}>{rem.subject_code}</span>
                     )
                }) :"";
-               var getGrades = getGrade(grades, sub.internal_code)
-
             return(
                 <Fragment key={index}>
-                    <tr>
+                    <tr className = {getGrades > 3? "has-background-danger-light": ""}>
                         <td>{sub.subject_name}</td>
                         <td>{sub.descr_1}</td>
                         <td className="has-text-centered">{sub.units}</td>
                         <td className="has-text-centered">{labUnit}</td>
                         <td className="has-text-centered">{parseInt(sub.units)+ labUnit}</td>
                         <td>{getPrerequisites}</td>
-                        <td className="has-text-centered has-text-weight-bold">{getGrades !== 0 && getGrades}</td>
-                        <td>{ this.viewButtonVisibity(getGrades) ? <button className="button is-info is-small" onClick={() => this.viewScheduleButtonHandle(sub.subject_name, sub.internal_code, sub.descr_1)}>View Schedules</button>  : "" }</td>
+                        <td className={"has-text-centered has-text-weight-bold "+ (getGrades > 3 ? "has-text-danger":"has-text-info")} >{getGrades !== 0 && getGrades}</td>
+                        <td>{  this.viewButtonVisibity(getGrades) && this.checkPrerequisiteStatus(sub.internal_code)? <button className="button is-info is-small" onClick={() => this.viewScheduleButtonHandle(sub.subject_name, sub.internal_code, sub.descr_1)}>View Schedules</button>  : "" }</td>
                     </tr> 
                 </Fragment>
 
@@ -61,16 +86,17 @@ export default class ProspectusTable extends Component {
             && filt.semester == 2 && filt.subject_type !== 'L').map((sub, index) => {
                 let labUnit = hasSubjectLab(subjects, sub.subject_name);
                totalUnitsForSecondSem = labUnit + parseInt(sub.units)+ totalUnitsForSecondSem;
+               var getGrades = getGrade(grades, sub.internal_code);
+               
                var getPrerequisites = prerequisites ? prerequisites.filter(remark => remark.internal_code === sub.internal_code).map((rem, i) => {
+                   countRemark++;
                     return (
-                        <span key={i} className="ml-1 tag is-success">{rem.subject_code}</span>
+                        <span key={i} className={"ml-1 tag"+ (getGrade(grades,rem.prerequisites) < 3 && getGrade(grades,rem.prerequisites) != 0 ? " is-success":" is-danger")}>{rem.subject_code}</span>
                     )
                }) :"";
-               var getGrades = getGrade(grades, sub.internal_code)
-
             return(
                 <Fragment key={index}>
-                    <tr>
+                    <tr className = {getGrades > 3? "has-background-danger-light": ""}>
                         <td>{sub.subject_name}</td>
                         <td>{sub.descr_1}</td>
                         <td className="has-text-centered">{sub.units}</td>
@@ -78,7 +104,7 @@ export default class ProspectusTable extends Component {
                         <td className="has-text-centered">{parseInt(sub.units)+ labUnit}</td>
                         <td>{getPrerequisites}</td>
                         <td className="has-text-centered has-text-weight-bold">{getGrades !== 0 && getGrades}</td>
-                        <td>{ this.viewButtonVisibity(getGrades) ? <button className="button is-info is-small" onClick={() => this.viewScheduleButtonHandle(sub.subject_name, sub.internal_code, sub.descr_1)}>View Schedules</button>  : "" }</td>
+                        <td>{ this.viewButtonVisibity(getGrades) && this.checkPrerequisiteStatus(sub.internal_code)? <button className="button is-info is-small" onClick={() => this.viewScheduleButtonHandle(sub.subject_name, sub.internal_code, sub.descr_1)}>View Schedules</button>  : "" }</td>
                     </tr> 
                 </Fragment>
 

@@ -114,6 +114,8 @@ export class Prospectus extends Component {
                         <ProspectusTabs 
                             selectedTab = {selectedTab}
                             totalBehind = {totalBehind}
+                            grades = {grades}
+                            subjects = {subjects}
                             handleOnClickTab = {this.handleOnClickTab}
                             
                         />

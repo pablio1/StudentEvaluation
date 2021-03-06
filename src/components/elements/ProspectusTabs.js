@@ -15,6 +15,22 @@ export default class ProspectusTabs extends Component {
         this.props.handleOnClickTab(tab, value);
         console.log("checkTab",selectedTab);
     }
+    getTotalBehind = (yearlevel) =>{
+        const {subjects, grades} = this.props;
+        var countSubject = 0;
+        var countGrade = 0;
+        //var loadTest = subjects ? subjects.filter(filt => filt.year_level == yearlevel && filt.subject_type != 'L'):"";
+        var loadSubject = subjects ? subjects.filter(filt => filt.year_level == yearlevel && filt.subject_type != 'L').map((sub, index) =>{
+            countSubject++;
+             var loadGrade = grades? grades.filter(fil => fil.internal_code == sub.internal_code).map((grade, key)=>{
+                if(grade.final_grade < 3)
+                countGrade++;
+            }) :""; 
+        }) : "";
+        //var getValue = countSubject - countGrade;
+        //console.log("Load Test", loadTest);
+        return Math.abs(countSubject-countGrade);
+    }
   render() {
     const {first, second, third, fourth, all, totalBehind } = this.props;
     const {selectedTab} = this.state;
@@ -28,8 +44,8 @@ export default class ProspectusTabs extends Component {
                     </span>
                     <span>First Year</span>
                     {
-                        totalBehind > 0 &&
-                        <span className="tag is-danger ml-3">{totalBehind}</span>
+                        (this.getTotalBehind(1) > 0 && getLoggedUserDetails("yearlevel") > 1) ? 
+                        (<span className="tag is-danger ml-3">{this.getTotalBehind(1)}</span>) : ""
                     }
                 </button>
                 <button name="approved" className={"button " + (selectedTab === '2' ? "is-info is-selected" : "")} onClick={() => this.handleOnClickTab('2', second)}>
@@ -38,8 +54,8 @@ export default class ProspectusTabs extends Component {
                     </span>
                     <span>Second Year</span>
                     {
-                        totalBehind > 0 &&
-                        <span className="tag is-danger ml-3">{totalBehind}</span>
+                        (this.getTotalBehind(2) > 0 && getLoggedUserDetails("yearlevel") > 2) ? 
+                        (<span className="tag is-danger ml-3">{this.getTotalBehind(2)}</span>) : ""
                     }
                 </button>
                 <button name="approved" className={"button "+(selectedTab === '3'? "is-info is-selected":"")} onClick={() => this.handleOnClickTab('3', third)}>
@@ -48,8 +64,8 @@ export default class ProspectusTabs extends Component {
                     </span>
                     <span>Third Year</span>
                     {
-                        totalBehind > 0 &&
-                        <span className="tag is-danger ml-3">{totalBehind}</span>
+                        (this.getTotalBehind(3) > 0 && getLoggedUserDetails("yearlevel") > 3) ? 
+                        (<span className="tag is-danger ml-3">{this.getTotalBehind(3)}</span>) : ""
                     }
                 </button>
                 <button name="approved" className={"button "+(selectedTab === '4'? "is-info is-selected":"")} onClick={() => this.handleOnClickTab('4', fourth)}>
@@ -58,8 +74,8 @@ export default class ProspectusTabs extends Component {
                     </span>
                     <span>Fourth Year</span>
                     {
-                        totalBehind > 0 &&
-                        <span className="tag is-danger ml-3">{totalBehind}</span>
+                        (this.getTotalBehind(4) > 0 && getLoggedUserDetails("yearlevel") > 4) ? 
+                        (<span className="tag is-danger ml-3">{this.getTotalBehind(4)}</span>) : ""
                     }
                 </button>
                 <button name="approved" className={"button "+(selectedTab === "all"? "is-info is-selected":"")} onClick={() => this.handleOnClickTab("all", all)}>
