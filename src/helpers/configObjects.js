@@ -9,7 +9,7 @@ export function userModulesPermission(userType) {
                         name: "Enrollment", icon: "fas fa-edit", route: "/enrollment", 
                         submodules: [
                             {name: "Request Subject", icon: "fas fa-minus", route: "/student/requestsubject" },
-                            //{name: "Dissolved Subjects", icon: "fas fa-minus", route: "/enrollment/student/dissolved Subjects" }
+                            //{name: "Dissolved Subjects", icon: "fas fa-minus", route: "/student/dissolved Subjects" }
                         ],
                     },
                     //{ name: "Assessment", icon: "fas fa-cash-register", route: "/assessment" },  
@@ -18,7 +18,7 @@ export function userModulesPermission(userType) {
                         name: "Prospectus", icon: "fas fa-file", route: "/prospectus",
                         submodules: [
                             {name: "Behind Subject", icon: "fas fa-minus", route: "/student/behind" },
-                            //{name: "Suggestion", icon: "fas fa-minus", route: "/prospectus/student/suggestion" },
+                            {name: "Suggestion", icon: "fas fa-minus", route: "/student/suggestion" },
                         ], 
                     },    
                     { name: "E Grade", icon: "fas fa-table", route: "/egrade" },

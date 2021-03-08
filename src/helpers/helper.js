@@ -515,12 +515,14 @@ export function toStandardTime(militaryTime) {
         return hours + '' + minutes + ' ';
 }
 //time_end: toStandardTime(autoTimeEndSetter(time_start)),
-export function autoTimeEndSetter(time_start){
+export function autoTimeEndSetter(time_start, days){
     try{
         var totalInMinutes = (parseInt(time_start.split(":")[0]) * 60) + parseInt(time_start.split(":")[1]);
 
         var otherMinutes = 90;
-
+        if(days == "SAT"){
+            otherMinutes = 180;
+        }
         var grandTotal = otherMinutes + totalInMinutes;
 
         //Now using your own code

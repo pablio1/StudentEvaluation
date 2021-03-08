@@ -3,10 +3,55 @@ import SpinnerGif from '../../assets/sysimg/spinner.gif'
 import { getCurriculum} from '../../helpers/apiCalls';
 import { getGrade} from '../../helpers/helper';
 import { getLoggedUserDetails, convertTabToYear, convertYearToTab } from '../../helpers/helper';
+import ViewSchedule from '../../components/elements/ViewSchedule';
 
 export class BehindSubject extends Component {
     state = {
-        subjects: null, grades: null, schedules: null
+        prerequisites: null,subjects: null, grades: null, schedules: null,selectedSubject: null, internal_code: null, subjectDescription: null
+        ,showModal: false
+    }
+    viewScheduleButtonHandle = (selected, internal, description) =>{
+        const{selectedSubject,internal_code,subjectescription} = this.state;
+        this.setState({
+            selectedSubject: selected,
+            internal_code: internal,
+            subjectDescription: description,
+            showModal: true
+        })
+        
+        //console.log("checkTab",selectedSubject, internal, description);
+    }
+    viewButtonVisibity = (grade) => {
+        var visible = false;
+        if((grade > 3.0 || grade === 0 ) && grade != null){
+            visible = true;
+        }
+        return visible;
+    }
+    checkPrerequisiteStatus = (internal_code) =>{
+        const {prerequisites, grades} = this.state;
+        var status= false;
+        var countGrade = 0;
+        var countRemark = 0;
+        var loadRemark = prerequisites? prerequisites.filter(filt => filt.internal_code == internal_code).map((remark, index)=>{
+            countRemark++;
+            var loadGrade = grades ? grades.filter(fil => fil.internal_code == remark.prerequisites).map((grade, key)=>{
+                if( grade.final_grade < 3)
+                    countGrade++;
+            }) : "";
+        }) : "";
+        
+        if(countRemark != 0){
+            if(countRemark != countGrade){
+                status = false;
+            }else{
+                status = true;
+            }
+        }else{
+            status = true;
+        }
+           
+        return status;
     }
     componentDidMount = () =>{
         getCurriculum(getLoggedUserDetails("idnumber"))
@@ -21,26 +66,34 @@ export class BehindSubject extends Component {
             }
         });  
     }
+    closeModal = () => {
+        this.setState({
+            showModal: false
+        })
+    }
     render() {
         
-        const{subjects, grades, schedules} = this.state;
-        var loadSubjects = subjects ? subjects.filter(filt => filt.subject_type != 'L' && filt.year_level < getLoggedUserDetails("yearleve")).map((data, index)=>{
-             /* var loadGrade = grades ? grades.filter(fgrade => fgrade.internal_code == ).map((dataGrade , key)=> {
-                if(get)
-            }) :""; */
+        const{subjects, grades, schedules, prerequisites,showModal,selectedSubject,internal_code,subjectDescription} = this.state;
+        var loadSubjects = subjects ? subjects.filter(filt => filt.subject_type != 'L' && filt.year_level < getLoggedUserDetails("yearlevel")).map((data, index)=>{
             var validateGrade = (getGrade(grades, data.internal_code) > 3 || getGrade(grades, data.internal_code) == 0 ) ? true: false;
+            var getGrades = getGrade(grades, data.internal_code);
+            var getPrerequisites = prerequisites ? prerequisites.filter(remark => remark.internal_code === data.internal_code).map((rem, i) => {
+                return ( 
+                    <span key={i} className={"ml-1 tag"+ (getGrade(grades,rem.prerequisites) < 3 && getGrade(grades,rem.prerequisites) != 0? " is-success":" is-danger")}>{rem.subject_code}</span>
+                )
+           }) :"";
             if(validateGrade) {
                 return(
                     <Fragment>
                         <tr key={index}  className = {getGrade(grades, data.internal_code) > 3? "has-background-danger-light": ""}>
-                            <th className="is-narrow">{data.subject_name}</th>
-                            <th>{data.descr_1}</th>
-                            <th className="has-text-centered">0</th>
-                            <th className="has-text-centered">0</th>
-                            <th className="has-text-centered">0</th>
-                            <th className="has-text-left"></th>
-                            <th className="has-text-centered">{(getGrade(grades, data.internal_code) == 0)? "": getGrade(grades, data.internal_code)}</th>
-                            <th className="has-text-centered"></th>
+                            <td className="is-narrow">{data.subject_name}</td>
+                            <td>{data.descr_1}</td>
+                            <td className="has-text-centered">0</td>
+                            <td className="has-text-centered">0</td>
+                            <td className="has-text-centered">0</td>
+                            <td className="has-text-left">{getPrerequisites}</td>
+                            <td className="has-text-centered">{(getGrade(grades, data.internal_code) == 0)? "": getGrade(grades, data.internal_code)}</td>
+                            <td>{  this.viewButtonVisibity(getGrades) && this.checkPrerequisiteStatus(data.internal_code)? <button className="button is-info is-small" onClick={() => this.viewScheduleButtonHandle(data.subject_name, data.internal_code, data.descr_1)}>View Schedules</button>  : "" }</td>
                         </tr>
                     </Fragment>
                 )
@@ -58,6 +111,29 @@ export class BehindSubject extends Component {
                                         
                             </div>
                             <div className="message-body p-0">
+
+
+                                <div className={"modal " + (showModal == true?  "is-active " : "")}>
+                                    <div className="modal-background" onClick={this.closeModal}></div>
+                                    <div className="modal-card">
+                                        <header className="modal-card-head">
+                                            <p className="modal-card-title">Schedule</p>
+                                            <button className="delete" aria-label="close" onClick={this.closeModal}></button>
+                                        </header>
+                                        <section className="modal-card-body">
+                                            <ViewSchedule 
+                                                schedules = {schedules}
+                                                selectedSubject = {selectedSubject}
+                                                internal_code = {internal_code}
+                                                subjectDescription = {subjectDescription}
+                                            />
+                                        </section>
+                                    </div>
+                                    <button className="modal-close is-large" aria-label="close" onClick={this.closeModal}></button>
+                                </div>
+
+
+
                                 <div className="table-container">
                                     <table className="table is-striped is-fullwidth is-hoverable">
                                         <thead>
@@ -77,7 +153,7 @@ export class BehindSubject extends Component {
                                               <tr>
                                                   <td colSpan="8" className="has-text-centered is-small">No behind subject found!</td>
                                               </tr>
-                                          )}                                                                                             
+                                          )}                                                                                           
                                         </tbody>
                                     </table>
                                 </div>

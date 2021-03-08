@@ -1,7 +1,7 @@
 import React, { Component, Fragment} from "react";
 import SpinnerGif from '../../assets/sysimg/spinner.gif'
 import { getCurriculum} from '../../helpers/apiCalls';
-import { getLoggedUserDetails, convertTabToYear, convertYearToTab } from '../../helpers/helper';
+import { getLoggedUserDetails, convertTabToYear, convertYearToTab,hasSubjectLab } from '../../helpers/helper';
 
 import ProspectusTabs  from '../../components/elements/ProspectusTabs';
 import ProspectusTable from '../../components/elements/ProspectusTable'

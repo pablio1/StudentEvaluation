@@ -43,12 +43,13 @@ export class RequestSubjects extends Component {
     
    
     inputChange = input => e => {
+        const{days} = this.state;
         this.setState({
             [input]: e.target.value
         });
         if(input == "time_start"){
             this.setState({
-                time_end: autoTimeEndSetter(e.target.value)
+                time_end: autoTimeEndSetter(e.target.value , days)
             });
         }
         console.log("INPUT ",input);
@@ -107,9 +108,9 @@ export class RequestSubjects extends Component {
         const data = {
             internal_code: internal_code,
             time_start: toStandardTime(time_start),
-            time_end: toStandardTime(autoTimeEndSetter(time_start)),
+            time_end: toStandardTime(autoTimeEndSetter(time_start,days)),
             m_time_start: this.splitMilitaryTime(time_start),
-            m_time_end: this.splitMilitaryTime(autoTimeEndSetter(time_start)),
+            m_time_end: this.splitMilitaryTime(autoTimeEndSetter(time_start,days)),
             mdn: mDn,
             days: days,
             rtype: rtype,
