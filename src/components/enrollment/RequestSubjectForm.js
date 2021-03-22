@@ -35,8 +35,8 @@ export default class RequestSubjectForm extends Component {
         <div className="column is-one-third">
             <div className="box"  style={{height: '500px'}}>
                 <h4 className="is-size-4 has-text-weight-bold mb-2">Request Form</h4>
-                {
-                    success === null ? "" : (success?(
+                {/* {
+                    success === null ? "" : (success && success != 2?(
                         <div className="notification is-success">
                             <button className="delete" onClick={handleCloseButton}></button>
                             Success!
@@ -47,6 +47,34 @@ export default class RequestSubjectForm extends Component {
                             Failed! Please fill out the form needed!
                         </div>
                     ))
+
+                } */}
+                {
+                    success == 2 &&
+                    (
+                        <div className="notification is-danger">
+                            <button className="delete" onClick={handleCloseButton}></button>
+                            Failed! Subject is already requested!
+                        </div>
+                    )
+                }
+                {
+                    success == 0 &&
+                    (
+                        <div className="notification is-danger">
+                            <button className="delete" onClick={handleCloseButton}></button>
+                            Failed! Please fill out the form needed!
+                        </div>
+                    )
+                }
+                {
+                    success == 1 &&
+                    (
+                        <div className="notification is-success">
+                            <button className="delete" onClick={handleCloseButton}></button>
+                            Success!
+                        </div>
+                    )
                 }
                 <div className="columns mt-5">
                     <div className="column pt-0 pull-right">

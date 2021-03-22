@@ -474,13 +474,17 @@ export function convertYearToTab(year){
     return selectedTab;
 }
 
-export function hasSubjectLab(subjects, subject){
-    var hasLab = 0;
-    const tempArray = subjects.filter(sub => sub.subject_name == subject 
-        && sub.subject_type == 'L');
-    hasLab = (tempArray && tempArray.length > 0) ? 1 : 0;
+export function hasSubjectLab(subjects, internal_code){
+    var units = 0;
+    const tempArray = subjects.filter(sub => sub.internal_code == internal_code 
+        && (sub.split_type != null || sub.split_type != "")).map((data, index)=>{
+            var loadSplitCode = subjects.filter(fil => fil.internal_code == data.split_code).map((splitData, i)=>{
+                units = parseInt(splitData.units);
+            });
+        });
+    //hasLab = (tempArray && tempArray.length > 0) ? 1 : 0;
 
-    return hasLab;
+    return units;
 }
 
 export function getGrade(grades, internal_code){
@@ -543,5 +547,7 @@ export function autoTimeEndSetter(time_start, days){
      
 
 }
+
+
 
 

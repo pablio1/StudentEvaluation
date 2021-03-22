@@ -4,6 +4,8 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { CookiesProvider } from 'react-cookie';
 import './assets/js/layout.js'
 import './styles/index.scss';
+import './styles/style.css';
+//import "antd/dist/antd.css";
 //import App from './App';
 import UCWebPortal from './UCWebPortal'
 //import reportWebVitals from './reportWebVitals';

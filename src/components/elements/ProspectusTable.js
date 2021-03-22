@@ -30,7 +30,7 @@ export default class ProspectusTable extends Component {
         var countGrade = 0;
         var countRemark = 0;
         var loadRemark = prerequisites? prerequisites.filter(filt => filt.internal_code == internal_code).map((remark, index)=>{
-            countRemark++;
+            countRemark++; //1
             var loadGrade = grades ? grades.filter(fil => fil.internal_code == remark.prerequisites).map((grade, key)=>{
                 if( grade.final_grade < 3)
                     countGrade++;
@@ -56,8 +56,8 @@ export default class ProspectusTable extends Component {
       var countRemark = 0;
       //var getPrerequisites = prerequisites ? prerequisites.filter(remark.student)
       var loadFirstSem = subjects? subjects.filter(filt => filt.year_level == selectedTab 
-            && filt.semester == 1 && filt.subject_type !== 'L').map((sub, index) => {
-                let labUnit = hasSubjectLab(subjects, sub.subject_name);
+            && filt.semester == 1 && (filt.split_type == "S" || filt.split_type == null || filt.split_type == "")).map((sub, index) => {
+                let labUnit = hasSubjectLab(subjects, sub.internal_code);
                totalUnitsForFirstSem = labUnit + parseInt(sub.units)+ totalUnitsForFirstSem;
                var getGrades = getGrade(grades, sub.internal_code)
                var getPrerequisites = prerequisites ? prerequisites.filter(remark => remark.internal_code === sub.internal_code).map((rem, i) => {
@@ -83,8 +83,8 @@ export default class ProspectusTable extends Component {
         }):"";
         var totalUnitsForSecondSem = 0;
         var loadSecondSem = subjects? subjects.filter(filt => filt.year_level == selectedTab 
-            && filt.semester == 2 && filt.subject_type !== 'L').map((sub, index) => {
-                let labUnit = hasSubjectLab(subjects, sub.subject_name);
+            && filt.semester == 2 && (filt.split_type == "S" || filt.split_type == null || filt.split_type == "")).map((sub, index) => {
+                let labUnit = hasSubjectLab(subjects, sub.internal_code);
                totalUnitsForSecondSem = labUnit + parseInt(sub.units)+ totalUnitsForSecondSem;
                var getGrades = getGrade(grades, sub.internal_code);
                

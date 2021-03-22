@@ -11,7 +11,8 @@ export class Prospectus extends Component {
     
     state = {
         selectedTab: null ,totalBehind: 0,subjects: null, schedules: null, selectedSubject: null,showModal: false,
-        idnumber: null,yearlevel: null, prerequisites: null, grades: null, internal_code:null, subjectDescription: null
+        idnumber: null,yearlevel: null, prerequisites: null, grades: null, internal_code:null, subjectDescription: null,
+            getYear: null
     }
     componentDidMount = () => {
         getCurriculum(getLoggedUserDetails("idnumber"))
@@ -22,8 +23,10 @@ export class Prospectus extends Component {
                     selectedTab: getLoggedUserDetails("yearlevel"),
                     prerequisites: response.data.prerequisites,
                     grades: response.data.grades,
-                    schedules: response.data.schedules
+                    schedules: response.data.schedules,
+                    getYear: response.data.course_code
                 });
+                console.log("test getcur", response.data.course_code);
             }
         });  
     }
@@ -109,8 +112,8 @@ export class Prospectus extends Component {
             </div>
             <div className="box ml-1 mb-1">
                 <div className="columns">
+                    
                     <div className="column is-four-fifths">
-
                         <ProspectusTabs 
                             selectedTab = {selectedTab}
                             totalBehind = {totalBehind}

@@ -100,32 +100,53 @@ export class RequestSubjects extends Component {
     }
 
     handleButtonSubmitRequest = () =>{
-        const{internal_code, days, time_start, time_end, mdn, rtype,success} = this.state;
-        let mDn = "AM";
-        if(this.splitMilitaryTime(time_end) >= 1200){
-            mDn = "PM";
-        } 
-        const data = {
-            internal_code: internal_code,
-            time_start: toStandardTime(time_start),
-            time_end: toStandardTime(autoTimeEndSetter(time_start,days)),
-            m_time_start: this.splitMilitaryTime(time_start),
-            m_time_end: this.splitMilitaryTime(autoTimeEndSetter(time_start,days)),
-            mdn: mDn,
-            days: days,
-            rtype: rtype,
-            id_number: getLoggedUserDetails("idnumber")
-        }
-        console.log("intenral_code",data);
-        saveSubjectRequest(data)
-        .then(response => {  
-            if(response.data) {          
-                this.setState({
-                    success:  response.data.success
+        const{internal_code, days, time_start, time_end, mdn, rtype,success,subjects,requestSubjects} = this.state;
+        
+       
+        //var hasExist = (loadRequest > 0) ? true:false;
+        if(internal_code == null || days == null || time_start == null ){
+            this.setState({
+                success: 0
+            });
+        }else{
+            let mDn = "AM";
+            var hasExist = false;
+            var loadRequest = requestSubjects.filter( fRequest=>  fRequest.internal_code == internal_code).map((fRequest, index)=>{
+                hasExist = true;
+            });
+
+            if(this.splitMilitaryTime(time_end) >= 1200){
+                mDn = "PM";
+            }
+            
+            if(!hasExist){
+                const data = {
+                    internal_code: internal_code,
+                    time_start: toStandardTime(time_start),
+                    time_end: toStandardTime(autoTimeEndSetter(time_start,days)),
+                    m_time_start: this.splitMilitaryTime(time_start),
+                    m_time_end: this.splitMilitaryTime(autoTimeEndSetter(time_start,days)),
+                    mdn: mDn,
+                    days: days,
+                    rtype: rtype,
+                    id_number: getLoggedUserDetails("idnumber")
+                }
+                //console.log("intenral_code",data);
+                saveSubjectRequest(data)
+                .then(response => {  
+                    if(response.data) {          
+                        this.setState({
+                            success:  response.data.success
+                        });
+                        this.handleLoadSubjectRequest();
+                    }   
                 });
-                this.handleLoadSubjectRequest();
-            }   
-        });
+            }else{
+                this.setState({
+                    success: 2
+                });
+            }
+        }
     }
     handleLoadSubjectRequest =()=>{
         getStudentRequest(getLoggedUserDetails("coursecode"))
@@ -204,11 +225,8 @@ export class RequestSubjects extends Component {
                             handleCloseButton = {this.handleCloseButton}
                         /> : ""
                     }
-                   
                 </div> 
-                
             </div>
-            
         </Fragment>
         )
     };

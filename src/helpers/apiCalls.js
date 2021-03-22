@@ -911,3 +911,13 @@ export function cancelStudentRequest(data){
     });
 }
 
+export function getAllCurriculum(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_GET_ALL_CURRICULUM, data, {headers})
+    .catch(error => {
+        console.log(error);
+    });
+}

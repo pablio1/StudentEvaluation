@@ -15,8 +15,9 @@ export function userModulesPermission(userType) {
                     //{ name: "Assessment", icon: "fas fa-cash-register", route: "/assessment" },  
                     //{ name: "Study Load", icon: "fas fa-book-reader", route: "/studentstudyload" },
                     {
-                        name: "Prospectus", icon: "fas fa-file", route: "/prospectus",
+                        name: "Prospectus", icon: "fas fa-file", route: "",
                         submodules: [
+                            {name: "Prospectus", icon: "fas fa-minus", route: "/prospectus" },
                             {name: "Behind Subject", icon: "fas fa-minus", route: "/student/behind" },
                             {name: "Suggestion", icon: "fas fa-minus", route: "/student/suggestion" },
                         ], 
@@ -351,12 +352,13 @@ export function userModulesPermission(userType) {
                 modules: [
                     { name: "Dashboard", icon: "fas fa-tachometer-alt", route: "/dashboard" }, 
                     { name: "Notifications", icon: "fas fa-bell", route: "/notifications" },  
-                    { 
+                    {
                         name: "Enrollment", icon: "fas fa-edit", route: "", 
                         submodules: [
                             {name: "Tracker", icon: "fas fa-minus", route: "/enrollment/edp/tracker" },
                         ],
-                    },    
+                    },
+                    { name: "Curriculum", icon: "fas fa-book-reader", route: "/curriculum" },     
                     { name: "Study Load", icon: "fas fa-book-reader", route: "/staffstudyload" },  
                     { name: "E Grade", icon: "fas fa-table", route: "/egrade" }, 
                     { name: "Class List", icon: "fas fa-clipboard-list", route: "/classlist" }, 
