@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component,Fragment } from 'react';
 import { convertTabToYear, getLoggedUserDetails } from '../../helpers/helper';
 export default class ProspectusTabs extends Component {
     state = {
@@ -35,7 +35,7 @@ export default class ProspectusTabs extends Component {
     const {first, second, third, fourth, all, totalBehind } = this.props;
     const {selectedTab} = this.state;
     return (
-      <>
+      <Fragment>
         
             <div className="buttons has-addons is-centered">                
                 <button name="pending" className={"button " + (selectedTab === '1' ? "is-info is-selected" : "")} onClick={() => this.handleOnClickTab('1', first)}>
@@ -91,7 +91,7 @@ export default class ProspectusTabs extends Component {
                     <span>Print</span>
                 </button>
             </div>  
-      </>
+      </Fragment>
     );
   }
 }

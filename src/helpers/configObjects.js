@@ -358,7 +358,7 @@ export function userModulesPermission(userType) {
                             {name: "Tracker", icon: "fas fa-minus", route: "/enrollment/edp/tracker" },
                         ],
                     },
-                    { name: "Curriculum", icon: "fas fa-book-reader", route: "/curriculum" },     
+                    { name: "Curriculum", icon: "fas fa-book", route: "/curriculum" },     
                     { name: "Study Load", icon: "fas fa-book-reader", route: "/staffstudyload" },  
                     { name: "E Grade", icon: "fas fa-table", route: "/egrade" }, 
                     { name: "Class List", icon: "fas fa-clipboard-list", route: "/classlist" }, 

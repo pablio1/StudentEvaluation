@@ -1,9 +1,9 @@
 import React, { Component,Fragment } from 'react';
-import CourseList from '../../components/elements/CourseList';
-import CurriculumTable from '../../components/elements/CurriculumTable';
-import CurriculumPanel from '../../components/elements/CurriculumPanel';
+import ViewCurriculum from '../../components/elements/ViewCurriculum';
+import CurriculumTabs from '../../components/elements/CurriculumTabs';
+import AddCurriculum from '../../components/elements/AddCurriculum';
 import { ExcelRenderer } from "react-excel-renderer";
-import { getAllCurriculum} from '../../helpers/apiCalls';
+import { getAllCurriculum,getCourseList} from '../../helpers/apiCalls';
 import { EditableFormRow, EditableCell } from '../../helpers/editableTable';
 import { Table, Button, Popconfirm, Row, Col, Icon, Upload } from 'antd';
 
@@ -11,16 +11,16 @@ export class Curriculum extends Component {
 
     state = {
         addStatus: false,schoolYear:null, addCourseStatus: false, selectedAddedCourse: null,cols: [],rows: [],filteredSchoolYear: null,subjects: null, courses: null, curriculumYear: null,departments:null,
-
+		selectedTab: null,showModal: false,courseInfo: null,selectedCourse: null,selectedDepartment:null,viewSubject: false, courseList: null,
         columns: [{title: "Subject",dataIndex: "subject",editable: true},{title: "Description",dataIndex: "description",editable: true},
             {title: "Lec Units",dataIndex: "lec",editable: true},{title: "Lab Units",dataIndex: "lab",editable: true},{title: "Year",dataIndex: "year",editable: true},
-            {title: "Semester",dataIndex: "semester",editable: true},{title: "Prerequisites",dataIndex: "prerequisites",editable: true},
+            {title: "Semester",dataIndex: "semester",editable: true},
             {title: "Action",dataIndex: "action",
             render: (text, record) =>
                 this.state.rows.length >= 1 ? (
                   <Popconfirm
                     title="Sure to delete?"
-                    onConfirm={() => this.handleDelete(record.key)}
+                    onConfirm={() => this.handleDelete(record.subject)}
                   >
                     <Icon
                       type="delete"
@@ -33,18 +33,32 @@ export class Curriculum extends Component {
           ]
     }
     componentDidMount = () => {
-      getAllCurriculum()
-      .then(response => {  
-          if(response.data) {          
-              this.setState({
-                  courses: response.data.course,
-                  subjects: response.data.subjects,
-                  curriculumYear: response.data.year,
-                  departments: response.data.departments
-              });
-              console.log("test", response.data);
-          }
-      }); 
+		getAllCurriculum()
+		.then(response => {  
+			if(response.data) {          
+				this.setState({
+					/* subjects: response.data.subjects, */
+					curriculumYear: response.data.year,
+					departments: response.data.departments,
+					schoolYear: response.data.current_curriculum,
+					courseList: response.data.course,
+				});
+				console.log(response.data);
+				var data={
+					curr_year: response.data.current_curriculum,
+					department: null
+				}
+				getCourseList(data)
+				.then(response => {
+					if(response.data){
+						this.setState({
+							courses: response.data.courses
+						});
+						//console.log("test", response.data);
+					}
+				});
+			}
+		});
     }
     handleSave = row => {
         const newData = [...this.state.rows];
@@ -83,20 +97,20 @@ export class Curriculum extends Component {
       let fileObj = fileList;
       if (!fileObj) {
         this.setState({
-          errorMessage: "No file uploaded!"
+        	errorMessage: "No file uploaded!"
         });
         return false;
       }
       console.log("fileObj.type:", fileObj.type);
       if (
         !(
-          fileObj.type === "application/vnd.ms-excel" ||
-          fileObj.type ===
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+			fileObj.type === "application/vnd.ms-excel" ||
+			fileObj.type ===
+			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
       ) {
         this.setState({
-          errorMessage: "Unknown file format. Only Excel files are uploaded!"
+			errorMessage: "Unknown file format. Only Excel files are uploaded!"
         });
         return false;
       }
@@ -121,14 +135,14 @@ export class Curriculum extends Component {
           });
           if (newRows.length === 0) {
             this.setState({
-              errorMessage: "No data found in file!"
+            	errorMessage: "No data found in file!"
             });
             return false;
           } else {
             this.setState({
-              cols: resp.cols,
-              rows: newRows,
-              errorMessage: null
+				cols: resp.cols,
+				rows: newRows,
+				errorMessage: null
             });
           }
         }
@@ -137,36 +151,79 @@ export class Curriculum extends Component {
     };
   
     handleSubmit = async () => {
-      console.log("submitting: ", this.state.rows);
-      //submit to API
-      //if successful, banigate and clear the data
-      //this.setState({ rows: [] })
+		//console.log("submitting: ", this.state.rows);
+		const {schoolYear, rows,selectedCourse} = this.state;
+		var data = {
+			curr_year: schoolYear,
+			course: selectedCourse,
+			subjects: rows
+		}
+		
+		console.log("data", data);
+		//submit to API
+		//if successful, banigate and clear the data
+		//this.setState({ rows: [] })
     };
-  
     handleDelete = key => {
       const rows = [...this.state.rows];
-      this.setState({ rows: rows.filter(item => item.key !== key) });
+      this.setState({ rows: rows.filter(item => item.subject !== key) });
     };
     handleAdd = () => {
-      const { count, rows } = this.state;
-      const newData = {
-        subject: "Subject",
-        description: "Description",
-        lec: "0",
-        lab: "0",
-        year: "0",
-        semester: "0",
-        prerequisites: "prerequisites"
-      };
-      this.setState({
-        rows: [newData, ...rows],
-        count: count + 1
-      });
+		const { count, rows } = this.state;
+		const newData = {
+			subject: "Subject",
+			description: "Description",
+			lec: "0",
+			lab: "0",
+			year: "0",
+			semester: "0"
+		};
+		this.setState({
+			rows: [newData, ...rows],
+			count: count + 1
+		});
     };
     inputChange = input => e => {
+		
         this.setState({
             [input]: e.target.value
         });
+		console.log("data", input);
+
+		if(input == 'schoolYear'){
+			var data={
+				curr_year: e.target.value,
+				department: null
+			}
+			getCourseList(data)
+			.then(response => {
+				if(response.data){
+					this.setState({
+						courses: response.data.courses,
+						viewSubject: false
+					});
+					//console.log("test", response.data);
+				}
+			});
+		}
+		if(input == 'selectedDepartment'){
+			const {schoolYear} = this.state;
+			var data={
+				curr_year: schoolYear,
+				department: e.target.value
+			}
+			console.log("data",data);
+			getCourseList(data)
+			.then(response => {
+				if(response.data){
+					this.setState({
+						courses: response.data.courses,
+						viewSubject: false
+					});
+					//console.log("test", response.data);
+				}
+			});
+		}
     }
     handAddCurriculumButton = () => {
         const{addStatus} = this.state;
@@ -181,73 +238,105 @@ export class Curriculum extends Component {
             addCourseStatus: !addCourseStatus
         });
     }
+	handleOnClickTab = (tab) =>{
+		this.setState({
+			selectedTab:tab
+		})
 
-  render() {
-    const{addStatus,schoolYear,addCourseStatus, selectedAddedCourse,rows,cols,
-      filteredSchoolYear,curriculumYear, subjects, courses,departments} = this.state;
-    const components = {
-        body: {
-          row: EditableFormRow,
-          cell: EditableCell
-        }
-      };
-      const columns = this.state.columns.map(col => {
-        if (!col.editable) {
-          return col;
-        }
-        return {
-          ...col,
-          onCell: record => ({
-            record,
-            editable: col.editable,
-            dataIndex: col.dataIndex,
-            title: col.title,
-            handleSave: this.handleSave
-          })
-        };
-      });
-    
-    return (
-        <Fragment>
+		console.log("tab",tab);	
+	}
+	closeModal = () => {
+		const{showModal} = this.state;
+		this.setState({
+			showModal: !showModal
+		});
+	}
+	handleViewSubjectButton = (course_code) =>{
+		const {viewSubject} =this.state;
 
-            <div className="box ml-1 mb-1">
-                <CurriculumPanel
-                  addCourseStatus = {addCourseStatus}
-                  addStatus = {addStatus}
-                  inputChange = {this.inputChange}
-                  handAddCurriculumButton = {this.handAddCurriculumButton}
-                  handleAddCourse = {this.handleAddCourse}
-                  fileHandler = {this.fileHandler}
-                  schoolYear = {schoolYear}
-                  curriculumYear = {curriculumYear}
-                  courses = {courses}
-                  subjects ={subjects}
-                  departments={departments}
-                />
-                <hr></hr>
-                {
-                  !addCourseStatus ? 
-                    <CourseList
-                      subjects={subjects}
-                      courses = {courses}
-                      subjects ={subjects}
-                      schoolYear={schoolYear}
-                      departments={departments}
-                    /> 
-                  : 
-                    <CurriculumTable 
-                        cols = {cols}
-                        rows = {rows}
-                        columns = {columns}
-                        components = {components}
-                        handleSubmit = {this.handleSubmit}
-                        handleAdd = {this.handleAdd}
-                    />
-                }
-            </div>
-        </Fragment>
-    );
-  }
+		this.setState({
+			viewSubject: !viewSubject
+		});
+
+		console.log(course_code);
+	}
+  	render() {
+		const{addStatus,schoolYear,addCourseStatus, selectedAddedCourse,rows,cols,showModal,courseList,
+		filteredSchoolYear,curriculumYear, subjects, courses,departments,selectedTab, viewSubject} = this.state;
+		const components = {
+			body: {
+			row: EditableFormRow,
+			cell: EditableCell
+			}
+		};
+		const columns = this.state.columns.map(col => {
+			if (!col.editable) {
+			  return col;
+			}
+			return {
+        		...col,
+				onCell: record => ({
+					record,
+					editable: col.editable,
+					dataIndex: col.dataIndex,
+					title: col.title,
+					handleSave: this.handleSave
+				})
+			};
+		});
+		var loadViewCurriculum = selectedTab == 1? (
+			<ViewCurriculum 
+				schoolYear = {schoolYear}
+				curriculumYear={curriculumYear}
+				courses={courses}
+				viewSubject = {viewSubject}
+				departments={departments}
+				handleViewSubjectButton = {this.handleViewSubjectButton}
+        		inputChange = {this.inputChange}
+			/>
+		) : ""; 
+		
+		var loadAddCurriculum = selectedTab == 2 ?(
+			<AddCurriculum 
+				inputChange = {this.inputChange}
+				schoolYear={schoolYear}
+				courses = {courseList}
+				fileHandler = {this.fileHandler}
+				cols = {cols}
+				rows = {rows}
+				columns = {columns}
+				components = {components}
+				handleSubmit={this.handleSubmit}
+				handleAdd={this.handleAdd}
+			/>
+		) : ""; 
+		return (
+			<Fragment>
+				<div className={"modal " + (showModal == true?  "is-active " : "")}>
+					<div className="modal-background" onClick={this.closeModal}></div>
+					<div className="modal-card">
+						<header className="modal-card-head">
+							<p className="modal-card-title">BSIT (2021-2022) - Preview</p>
+							<button className="delete" aria-label="close" onClick={this.closeModal}></button>
+						</header>
+						<section className="modal-card-body">
+							
+						</section>
+					</div>
+					<button className="modal-close is-large" aria-label="close" onClick={this.closeModal}></button>
+				</div>
+				<div className="box ml-1 mb-1">
+					<CurriculumTabs
+						selectedTab = {selectedTab}
+						handleOnClickTab = {this.handleOnClickTab}
+					/>
+					<hr></hr>
+					{loadViewCurriculum}{loadAddCurriculum}
+				</div>
+				{/* <button onClick={this.closeModal}></button> */}
+			</Fragment>
+		);
+  	}
 }
 
 export const CurriculumHeader = () => (

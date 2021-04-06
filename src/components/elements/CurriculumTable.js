@@ -13,7 +13,7 @@ export default class CurriculumTable extends Component {
               columns={columns}
             />
             <div className="columns">
-              <div className="column is-one-quarter mt-3">
+              <div className="column mt-3 is-fullwidth">
                   <buton className="button is-small is-info" onClick={handleAdd}>Add Subject</buton>
                   <buton className="button is-small is-primary ml-2" onClick={handleSubmit}>Submit</buton>
               </div>

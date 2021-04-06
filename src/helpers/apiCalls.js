@@ -921,3 +921,13 @@ export function getAllCurriculum(data){
         console.log(error);
     });
 }
+export function getCourseList(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_GET_COURSE_LIST, data, {headers})
+    .catch(error => {
+        console.log(error);
+    });
+}

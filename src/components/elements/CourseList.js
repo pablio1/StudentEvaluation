@@ -2,8 +2,13 @@ import React, { Component,Fragment } from 'react';
 
 export default class CourseList extends Component {
   render() {
-    const {subjects, departments, courses} = this.props;
+    const {subjects, departments, courses,schoolYear} = this.props;
 
+    var loadCourseList = courses ? courses.map((course, index)=>{
+		var loadSubjects = subjects.filter().map((subject, i)=>{
+			
+		});
+    }) : "";
     return (
       <Fragment>
           <div className="columns is-flex-wrap-wrap">
