@@ -931,3 +931,56 @@ export function getCourseList(data){
         console.log(error);
     });
 }
+export function saveCurriculum(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_SAVE_CURRICULUM, data, {headers})
+    .catch(error => {
+        console.log(error);
+    });
+}
+export function closeCurriculum(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_CLOSE_CURRICULUM, data, {headers})
+    .catch(error => {
+        console.log(error);
+    });
+}
+export function getSubjectInfo(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_GET_SUBJECT_INFO, data, {headers})
+    .catch(error => {
+        console.log(error);
+    });
+}
+
+export function removePrerequisite(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_REMOVE_PREREQUISITE, data, {headers})
+    .catch(error => {
+        console.log(error);
+    });
+}
+
+export function savePrerequisite(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_SAVE_PREREQUISITE, data, {headers})
+    .catch(error => {
+        console.log(error);
+    });
+}
+

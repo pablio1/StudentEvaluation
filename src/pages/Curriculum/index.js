@@ -2,8 +2,9 @@ import React, { Component,Fragment } from 'react';
 import ViewCurriculum from '../../components/elements/ViewCurriculum';
 import CurriculumTabs from '../../components/elements/CurriculumTabs';
 import AddCurriculum from '../../components/elements/AddCurriculum';
+import SubjectListTable from '../../components/elements/SubjectListTable';
 import { ExcelRenderer } from "react-excel-renderer";
-import { getAllCurriculum,getCourseList} from '../../helpers/apiCalls';
+import { getAllCurriculum,getCourseList, saveCurriculum} from '../../helpers/apiCalls';
 import { EditableFormRow, EditableCell } from '../../helpers/editableTable';
 import { Table, Button, Popconfirm, Row, Col, Icon, Upload } from 'antd';
 
@@ -11,7 +12,7 @@ export class Curriculum extends Component {
 
     state = {
         addStatus: false,schoolYear:null, addCourseStatus: false, selectedAddedCourse: null,cols: [],rows: [],filteredSchoolYear: null,subjects: null, courses: null, curriculumYear: null,departments:null,
-		selectedTab: null,showModal: false,courseInfo: null,selectedCourse: null,selectedDepartment:null,viewSubject: false, courseList: null,
+		selectedTab: null,showModal: false,courseInfo: null,selectedCourse: null,selectedDepartment:null,viewSubject: false, courseList: null, success: null, importSubjects: null,
         columns: [{title: "Subject",dataIndex: "subject",editable: true},{title: "Description",dataIndex: "description",editable: true},
             {title: "Lec Units",dataIndex: "lec",editable: true},{title: "Lab Units",dataIndex: "lab",editable: true},{title: "Year",dataIndex: "year",editable: true},
             {title: "Semester",dataIndex: "semester",editable: true},
@@ -40,10 +41,10 @@ export class Curriculum extends Component {
 					/* subjects: response.data.subjects, */
 					curriculumYear: response.data.year,
 					departments: response.data.departments,
-					schoolYear: response.data.current_curriculum,
+					//schoolYear: response.data.current_curriculum,
 					courseList: response.data.course,
 				});
-				console.log(response.data);
+				/* console.log(response.data);
 				var data={
 					curr_year: response.data.current_curriculum,
 					department: null
@@ -56,13 +57,13 @@ export class Curriculum extends Component {
 						});
 						//console.log("test", response.data);
 					}
-				});
+				}); */
 			}
 		});
     }
     handleSave = row => {
         const newData = [...this.state.rows];
-        const index = newData.findIndex(item => row.key === item.key);
+        const index = newData.findIndex(item => row.subject === item.subject);
         const item = newData[index];
         newData.splice(index, 1, {
           ...item,
@@ -128,8 +129,7 @@ export class Curriculum extends Component {
                 lec: row[2],
                 lab: row[3],
                 year: row[4],
-                semester: row[5],
-                prerequisites: row[6]
+                semester: row[5]
               });
             }
           });
@@ -160,6 +160,18 @@ export class Curriculum extends Component {
 		}
 		
 		console.log("data", data);
+
+		saveCurriculum(data)
+		.then(response => {  
+			if(response.data) {          
+				this.setState({
+					success: response.data.success
+				});
+				console.log(response.data);
+			}
+		});
+		
+
 		//submit to API
 		//if successful, banigate and clear the data
 		//this.setState({ rows: [] })
@@ -191,20 +203,23 @@ export class Curriculum extends Component {
 		console.log("data", input);
 
 		if(input == 'schoolYear'){
-			var data={
-				curr_year: e.target.value,
-				department: null
-			}
-			getCourseList(data)
-			.then(response => {
-				if(response.data){
-					this.setState({
-						courses: response.data.courses,
-						viewSubject: false
-					});
-					//console.log("test", response.data);
+			if(e.target.value != 0)
+			{
+				var data={
+					curr_year: e.target.value,
+					department: null
 				}
-			});
+				getCourseList(data)
+				.then(response => {
+					if(response.data){
+						this.setState({
+							courses: response.data.courses,
+							viewSubject: false
+						});
+						//console.log("test", response.data);
+					}
+				});
+			}
 		}
 		if(input == 'selectedDepartment'){
 			const {schoolYear} = this.state;
@@ -240,29 +255,29 @@ export class Curriculum extends Component {
     }
 	handleOnClickTab = (tab) =>{
 		this.setState({
-			selectedTab:tab
+			selectedTab:tab,
+			schoolYear: null,
+			courses: null,
+			viewSubject: false
 		})
 
 		console.log("tab",tab);	
 	}
-	closeModal = () => {
-		const{showModal} = this.state;
-		this.setState({
-			showModal: !showModal
-		});
-	}
-	handleViewSubjectButton = (course_code) =>{
+	handleViewSubjectButton = () =>{
 		const {viewSubject} =this.state;
-
 		this.setState({
 			viewSubject: !viewSubject
 		});
-
-		console.log(course_code);
+	}
+	handleBackButton = () =>{
+		const {viewSubject} = this.state;
+		this.setState({
+			viewSubject: !viewSubject
+		});
 	}
   	render() {
 		const{addStatus,schoolYear,addCourseStatus, selectedAddedCourse,rows,cols,showModal,courseList,
-		filteredSchoolYear,curriculumYear, subjects, courses,departments,selectedTab, viewSubject} = this.state;
+		filteredSchoolYear,curriculumYear, subjects, courses,departments,selectedTab, viewSubject,success,importSubjects} = this.state;
 		const components = {
 			body: {
 			row: EditableFormRow,
@@ -293,6 +308,7 @@ export class Curriculum extends Component {
 				departments={departments}
 				handleViewSubjectButton = {this.handleViewSubjectButton}
         		inputChange = {this.inputChange}
+				handleBackButton = {this.handleBackButton}
 			/>
 		) : ""; 
 		
@@ -308,23 +324,11 @@ export class Curriculum extends Component {
 				components = {components}
 				handleSubmit={this.handleSubmit}
 				handleAdd={this.handleAdd}
+				success = {success}
 			/>
 		) : ""; 
 		return (
 			<Fragment>
-				<div className={"modal " + (showModal == true?  "is-active " : "")}>
-					<div className="modal-background" onClick={this.closeModal}></div>
-					<div className="modal-card">
-						<header className="modal-card-head">
-							<p className="modal-card-title">BSIT (2021-2022) - Preview</p>
-							<button className="delete" aria-label="close" onClick={this.closeModal}></button>
-						</header>
-						<section className="modal-card-body">
-							
-						</section>
-					</div>
-					<button className="modal-close is-large" aria-label="close" onClick={this.closeModal}></button>
-				</div>
 				<div className="box ml-1 mb-1">
 					<CurriculumTabs
 						selectedTab = {selectedTab}

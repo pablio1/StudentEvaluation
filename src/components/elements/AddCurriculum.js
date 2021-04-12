@@ -7,6 +7,8 @@ export default class AddCurriculum extends Component {
   render() {
       const{schoolYear, inputChange,courses,fileHandler,cols,rows,
         columns,components,handleSubmit,handleAdd} = this.props;
+
+
       var loadCourses = courses ? courses.map((course, index)=>{
         return (
             <Fragment key={index}>
@@ -69,6 +71,8 @@ export default class AddCurriculum extends Component {
                         </div>
                     </div> 
                 </div>
+            </div>
+            <div className="">
             </div>
             <div className="columns">
                 <div className="column">
