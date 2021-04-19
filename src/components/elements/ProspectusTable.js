@@ -25,13 +25,13 @@ export default class ProspectusTable extends Component {
         return visible;
     }
     checkPrerequisiteStatus = (internal_code) =>{
-        const {prerequisites, grades} = this.props;
+        const {requisites, grades} = this.props;
         var status= false;
         var countGrade = 0;
         var countRemark = 0;
-        var loadRemark = prerequisites? prerequisites.filter(filt => filt.internal_code == internal_code).map((remark, index)=>{
+        var loadRemark = requisites? requisites.filter(filt => filt.internal_code == internal_code).map((remark, index)=>{
             countRemark++; //1
-            var loadGrade = grades ? grades.filter(fil => fil.internal_code == remark.prerequisites).map((grade, key)=>{
+            var loadGrade = grades ? grades.filter(fil => fil.internal_code == remark.requisites).map((grade, key)=>{
                 if( grade.final_grade < 3)
                     countGrade++;
             }) : "";
@@ -51,18 +51,17 @@ export default class ProspectusTable extends Component {
     }
   render() {
       const{grade} = this.state
-      const {subjects,selectedTab, prerequisites, grades} = this.props;
+      const {subjects,selectedTab, requisites, grades} = this.props;
       var totalUnitsForFirstSem = 0;
       var countRemark = 0;
-      //var getPrerequisites = prerequisites ? prerequisites.filter(remark.student)
       var loadFirstSem = subjects? subjects.filter(filt => filt.year_level == selectedTab 
             && filt.semester == 1 && (filt.split_type == "S" || filt.split_type == null || filt.split_type == "")).map((sub, index) => {
                 let labUnit = hasSubjectLab(subjects, sub.internal_code);
                totalUnitsForFirstSem = labUnit + parseInt(sub.units)+ totalUnitsForFirstSem;
                var getGrades = getGrade(grades, sub.internal_code)
-               var getPrerequisites = prerequisites ? prerequisites.filter(remark => remark.internal_code === sub.internal_code).map((rem, i) => {
+               var getPrerequisites = requisites ? requisites.filter(remark => remark.internal_code === sub.internal_code).map((rem, i) => {
                     return ( 
-                        <span key={i} className={"ml-1 tag"+ (getGrade(grades,rem.prerequisites) < 3 && getGrade(grades,rem.prerequisites) != 0? " is-success":" is-danger")}>{rem.subject_code}</span>
+                        <span key={i} className={"ml-1 tag"+ (getGrade(grades,rem.requisites) < 3 && getGrade(grades,rem.requisites) != 0? " is-success":" is-danger")}>{rem.subject_code}</span>
                     )
                }) :"";
             return(
@@ -88,10 +87,10 @@ export default class ProspectusTable extends Component {
                totalUnitsForSecondSem = labUnit + parseInt(sub.units)+ totalUnitsForSecondSem;
                var getGrades = getGrade(grades, sub.internal_code);
                
-               var getPrerequisites = prerequisites ? prerequisites.filter(remark => remark.internal_code === sub.internal_code).map((rem, i) => {
+               var getPrerequisites = requisites ? requisites.filter(remark => remark.internal_code === sub.internal_code).map((rem, i) => {
                    countRemark++;
                     return (
-                        <span key={i} className={"ml-1 tag"+ (getGrade(grades,rem.prerequisites) < 3 && getGrade(grades,rem.prerequisites) != 0 ? " is-success":" is-danger")}>{rem.subject_code}</span>
+                        <span key={i} className={"ml-1 tag"+ (getGrade(grades,rem.requisites) < 3 && getGrade(grades,rem.requisites) != 0 ? " is-success":" is-danger")}>{rem.subject_code}</span>
                     )
                }) :"";
             return(

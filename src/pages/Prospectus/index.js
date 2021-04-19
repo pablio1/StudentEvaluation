@@ -11,7 +11,7 @@ export class Prospectus extends Component {
     
     state = {
         selectedTab: null ,totalBehind: 0,subjects: null, schedules: null, selectedSubject: null,showModal: false,
-        idnumber: null,yearlevel: null, prerequisites: null, grades: null, internal_code:null, subjectDescription: null,
+        idnumber: null,yearlevel: null, requisites: null, grades: null, internal_code:null, subjectDescription: null,
             getYear: null
     }
     componentDidMount = () => {
@@ -21,12 +21,12 @@ export class Prospectus extends Component {
                 this.setState({
                     subjects: response.data.subjects,
                     selectedTab: getLoggedUserDetails("yearlevel"),
-                    prerequisites: response.data.prerequisites,
+                    requisites: response.data.requisites,
                     grades: response.data.grades,
                     schedules: response.data.schedules,
                     getYear: response.data.course_code
                 });
-                console.log("test getcur", response.data.course_code);
+                console.log("test getcur", response.data);
             }
         });  
     }
@@ -63,7 +63,7 @@ export class Prospectus extends Component {
         console.log("testing",test);
     }
     render() {
-        const {selectedTab, totalBehind, subjects,prerequisites, grades, selectedSubject, schedules,
+        const {selectedTab, totalBehind, subjects,requisites, grades, selectedSubject, schedules,
                 internal_code,subjectDescription,showModal} = this.state;
         let loadCurriculumTable = '';
         
@@ -75,7 +75,7 @@ export class Prospectus extends Component {
                     totalBehind = {totalBehind}
                     handleOnClickTab = {this.handleOnClickTab}
                     subjects = {subjects}
-                    prerequisites = {prerequisites}
+                    requisites = {requisites}
                     grades = {grades}
                     viewScheduleButtonHandle = {this.viewScheduleButtonHandle}
                 />

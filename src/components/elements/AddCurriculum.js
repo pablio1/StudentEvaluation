@@ -6,7 +6,7 @@ import { ExcelRenderer } from "react-excel-renderer";
 export default class AddCurriculum extends Component {
   render() {
       const{schoolYear, inputChange,courses,fileHandler,cols,rows,
-        columns,components,handleSubmit,handleAdd} = this.props;
+        columns,components,handleSubmit,handleAdd,success} = this.props;
 
 
       var loadCourses = courses ? courses.map((course, index)=>{
@@ -16,6 +16,12 @@ export default class AddCurriculum extends Component {
             </Fragment>
         )
     }):"";
+    var loadNotification = success?(
+        <div className={"notification "+(success>0 ? " is-info":" is-danger")}>
+            <button class="delete"></button>
+            {success > 0 ? "Success":"Failed"}
+        </div>
+    ):"";
     return (
       <Fragment>
           <div className="columns">
@@ -37,7 +43,12 @@ export default class AddCurriculum extends Component {
                         <h2 className="has-text-weight-bold mb-2 is-size-4">School Year: {schoolYear} - {parseInt(schoolYear) + 1}</h2>
                     }
                 </div>
-            </div> 
+            </div>
+            <div className="columns">
+                <div className="column is-fullwidth">
+                    
+                </div>
+            </div>
             <div className="columns">
                 <div className="column is-one-fifth">
                     <h5 className="has-text-weight-bold mb-2 is-size-7">Select Course</h5>                        
@@ -72,7 +83,10 @@ export default class AddCurriculum extends Component {
                     </div> 
                 </div>
             </div>
-            <div className="">
+            <div className="columns">
+                <div className="column is-fullwidth">
+                    {loadNotification}
+                </div>
             </div>
             <div className="columns">
                 <div className="column">

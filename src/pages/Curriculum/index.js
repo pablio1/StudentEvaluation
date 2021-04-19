@@ -34,33 +34,20 @@ export class Curriculum extends Component {
           ]
     }
     componentDidMount = () => {
+		this.loadCurriculum();
+    }
+	loadCurriculum = () =>{
 		getAllCurriculum()
 		.then(response => {  
 			if(response.data) {          
 				this.setState({
-					/* subjects: response.data.subjects, */
 					curriculumYear: response.data.year,
 					departments: response.data.departments,
-					//schoolYear: response.data.current_curriculum,
 					courseList: response.data.course,
 				});
-				/* console.log(response.data);
-				var data={
-					curr_year: response.data.current_curriculum,
-					department: null
-				}
-				getCourseList(data)
-				.then(response => {
-					if(response.data){
-						this.setState({
-							courses: response.data.courses
-						});
-						//console.log("test", response.data);
-					}
-				}); */
 			}
 		});
-    }
+	}
     handleSave = row => {
         const newData = [...this.state.rows];
         const index = newData.findIndex(item => row.subject === item.subject);
@@ -158,8 +145,7 @@ export class Curriculum extends Component {
 			course: selectedCourse,
 			subjects: rows
 		}
-		
-		console.log("data", data);
+		//console.log("data", data);
 
 		saveCurriculum(data)
 		.then(response => {  
@@ -167,7 +153,7 @@ export class Curriculum extends Component {
 				this.setState({
 					success: response.data.success
 				});
-				console.log(response.data);
+				this.loadCurriculum();
 			}
 		});
 		

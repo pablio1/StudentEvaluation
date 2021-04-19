@@ -3,7 +3,7 @@ import {hasSubjectLab} from '../../helpers/helper';
 import {getSubjectInfo,savePrerequisite,removePrerequisite} from '../../helpers/apiCalls';
 
 export default class SubjectInfo extends Component {
-    state = {subjects: null, prerequisites: null, year: null, semester:null, success: null}
+    state = {subjects: null, requisites: null, year: null, semester:null, success: null,requisite_type: null}
     componentDidMount = () => {
        //console.log(this.props);
         this.handleLoadSubjectInfo();
@@ -11,7 +11,7 @@ export default class SubjectInfo extends Component {
     handleLoadSubjectInfo = () =>{
         const {schoolYear, course_code} = this.props;
         //var loadSubjectInfo = subject.filter(filt => filt.internal_code == selectedSubject);
-        console.log("test", this.props);
+        //console.log("test", this.props);
         var data = {
             curr_year: schoolYear,
             course_code, course_code
@@ -20,10 +20,11 @@ export default class SubjectInfo extends Component {
         {
             getSubjectInfo(data)
             .then(response => {  
-                if(response.data) {          
+                if(response.data) {
                     this.setState({
                         subjects: response.data.subjects,
-                        prerequisites: response.data.prerequisites
+                        requisites: response.data.requisites,
+                        requisite_type: response.data.requisite_type
                     });
                 }
                 const {subjects} = this.state;
@@ -38,12 +39,14 @@ export default class SubjectInfo extends Component {
             });
         }
     }
-    handleAddPrerequisite = (internal_code) => {
+    handleAddRequisite = (internal_code,type) => {
         const{selectedSubject} = this.props;
         var data = {
             internal_code: selectedSubject,
-            prerequisite: internal_code
+            requisite: internal_code,
+            requisite_type: type
         }
+        console.log("testdata",data);
         savePrerequisite(data)
         .then(response => {
             if(response.data){
@@ -60,11 +63,13 @@ export default class SubjectInfo extends Component {
     handleSelectButton = (internal_code) => {
         this.props.handleSelectButton(internal_code);
     }
-    handleRemovePrerequisite = (internal_code) => {
+    handleRemoveRequisite = (internal_code, type) => {
         const {selectedSubject} = this.props;
         var data = {
             internal_code: selectedSubject,
-            prerequisite: internal_code
+            requisite: internal_code,
+            requisite_type: type
+
         }
         //console.log("Data",data);
         removePrerequisite(data)
@@ -80,30 +85,36 @@ export default class SubjectInfo extends Component {
     }
   render() {
     const {subject,selectedSubject,handleBackButton, inputChange,schoolYear} = this.props;
-    const {subjects, prerequisites,year,semester} = this.state;
+    const {subjects, requisites,year,semester,requisite_type} = this.state;
     const yearLevel = ['', 'First', 'Second', 'Third', 'Fourth', 'Fifth'];
     const sem  = ['', 'First', 'Second'];
+    var countPre = 0;
+    var countCo = 0;
+    var getYear = 0;
+    var getSemester = 0;
     var loadSubjectInfo = subject?subject.filter(filt => filt.internal_code == selectedSubject).map((sub, index)=>{
+        getYear = sub.year_level;
+        getSemester = sub.semester;
         return (
             <Fragment key={index}>
                 <tr>
                     <th className="is-narrow">Department</th>
                     <td>College of Computer Studies</td>
                     <th>School Year</th>
-                    <td colSpan="3" className="has-text-left">{schoolYear} - {parseInt(schoolYear) + 1}</td>
+                    <td colSpan="5" className="has-text-left">{schoolYear} - {parseInt(schoolYear) + 1}</td>
                 </tr>
                 <tr>
                     <th className="is-narrow">Course</th>
                     <td colSpan="">Bachelor of Science in Information Technology (BSIT)</td>
                     <th>Year</th>
-                    <td>3</td>
+                    <td colSpan="2">3</td>
                     <th className="is-narrow">Semester</th>
-                    <td>1</td>
+                    <td colSpan="2">1</td>
                 </tr>
                 <tr>
                     <th className="is-narrow">Subject</th>
                     <td>{sub.subject_name}</td>
-                    <th colSpan="4" className="has-text-centered">Units</th>
+                    <th colSpan="6" className="has-text-centered">Units</th>
                 </tr>
                 <tr>
                     <th>Description</th>
@@ -111,7 +122,9 @@ export default class SubjectInfo extends Component {
                     <th>Lecture</th>
                     <td>{sub.units}</td>
                     <th>Lab</th>
-                    <td>{hasSubjectLab(subject, sub.interal_code)}</td>
+                    <td>{hasSubjectLab(subject, sub.internal_code)}</td>
+                    <th>Total</th>
+                    <td>{hasSubjectLab(subject, sub.internal_code) + parseInt(sub.units)}</td>
                 </tr>
             </Fragment>
         )
@@ -123,16 +136,30 @@ export default class SubjectInfo extends Component {
             </Fragment>
         )
     }):"";
-    var loadPrerequisites = prerequisites ? prerequisites.filter(filt => filt.internal_code == selectedSubject).map((pre, index)=>{
-        var loadSubject = subject.filter(fil => fil.internal_code == pre.prerequisites).map((sub, i)=>{
+    var loadPrerequisites = requisites ? requisites.filter(filt => filt.internal_code == selectedSubject && filt.requisite_type == "P").map((pre, index)=>{
+        var loadSubject = subject.filter(fil => fil.internal_code == pre.requisites).map((sub, i)=>{
             return(
                 <Fragment>
                     <tr key={i}>
                         <td>{sub.subject_name}</td>
-                        <td>{sub.units}</td>
-                        <td>{hasSubjectLab(subject, sub.internal_code)}</td>
-                        <td></td>
-                        <td><button className="is-small is-danger button" onClick={() => this.handleRemovePrerequisite(sub.internal_code)}>Remove</button></td>
+                        <td>{sub.descr_1}</td>
+                        <td className="has-text-centered">{hasSubjectLab(subject, sub.internal_code) + parseInt(sub.units)}</td>
+                        <td className="has-text-centered"><button className="is-small is-danger button" onClick={() => this.handleRemoveRequisite(sub.internal_code,"P")}>Remove</button></td>
+                    </tr>
+                </Fragment>
+            )
+        })
+        return loadSubject
+    }):""; 
+    var loadCorequisites = requisites ? requisites.filter(filt => filt.internal_code == selectedSubject && filt.requisite_type == "C").map((pre, index)=>{
+        var loadSubject = subject.filter(fil => fil.internal_code == pre.requisites).map((sub, i)=>{
+            return(
+                <Fragment>
+                    <tr key={i}>
+                        <td>{sub.subject_name}</td>
+                        <td>{sub.descr_1}</td>
+                        <td className="has-text-centered">{hasSubjectLab(subject, sub.internal_code) + parseInt(sub.units)}</td>
+                        <td className="has-text-centered"><button className="is-small is-danger button" onClick={() => this.handleRemoveRequisite(sub.internal_code,"C")}>Remove</button></td>
                     </tr>
                 </Fragment>
             )
@@ -146,18 +173,22 @@ export default class SubjectInfo extends Component {
             var loadSubjects = subjects? subjects.filter(fil => fil.year_level == year && fil.semester == semester && fil.subject_type != 'L').map((sub, i)=>{
                 let labUnit = hasSubjectLab(subjects, sub.internal_code);
                 totalUnits = labUnit + parseInt(sub.units)+ totalUnits;
-                var count = 0;
-                var coloredPrerequisites = prerequisites.filter(f => f.internal_code == selectedSubject && f.prerequisites == sub.internal_code).map((color, a)=>{
-                    count++;
+                var countPrerequisite = 0;
+                var countCorequisite = 0;
+                var coloredPrerequisites = requisites.filter(f => f.internal_code == selectedSubject && f.requisites == sub.internal_code).map((color, a)=>{
+                    if(color.requisite_type == "P")
+                        countPrerequisite++;
+                    if(color.requisite_type == "C")
+                        countCorequisite++;
                 });
-                var getPrerequisites = prerequisites ? prerequisites.filter(remark => remark.internal_code === sub.internal_code).map((rem, i) => {
+                var getPrerequisites = requisites ? requisites.filter(remark => remark.internal_code === sub.internal_code).map((rem, i) => {
                     return ( 
                         <span key={i} className="ml-1 tag">{rem.subject_code}</span>
                     )
                }) :"";
                 return (
                     <Fragment>
-                        <tr key={i} className={sub.internal_code == selectedSubject? "is-selected":(count > 0?"has-background-link-light":"")}>
+                        <tr key={i} className={sub.internal_code == selectedSubject? "is-selected":(countPrerequisite > 0?"has-background-link-light":(countCorequisite > 0 ?"has-background-primary-light" : ""))}>
                             <td>{sub.subject_name}</td>
                             <td>{sub.descr_1}</td>
                             <td className="has-text-centered">{sub.units}</td>
@@ -170,14 +201,29 @@ export default class SubjectInfo extends Component {
                                 )
                                 :( 
                                     selectedSubject?(
-                                        count>0?(
-                                            <button className="button is-small is-danger" onClick={() => this.handleRemovePrerequisite(sub.internal_code)}>Cancel</button>
+                                        countPrerequisite>0?(
+                                            <button className="button is-small is-danger" onClick={() => this.handleRemoveRequisite(sub.internal_code,"P")}>Cancel</button>
                                         ):(
-                                            
-                                            <Fragment>
-                                                <button className="button is-info is-small" onClick={() => this.handleAddPrerequisite(sub.internal_code)}>Pre</button>
-                                                <button className="button is-primary is-small" >Co</button>
-                                            </Fragment>
+                                            countCorequisite > 0 ?(
+                                                <button className="button is-small is-danger" onClick={() => this.handleRemoveRequisite(sub.internal_code,"C")}>Cancel</button>
+                                            ):(
+                                                
+                                                <Fragment>
+                                                        {
+                                                            (getYear >= year && getYear!=year) ?(
+                                                                <button className="button is-info is-small" onClick={() => this.handleAddRequisite(sub.internal_code,"P")}>Pre-requisite</button>
+                                                            ): ""
+                                                        }
+                                                        {
+                                                            (getYear == year && 1 ==semester && getSemester != semester) ?(
+                                                                <button className="button is-info is-small" onClick={() => this.handleAddRequisite(sub.internal_code,"P")}>Pre-requisite</button>
+                                                            ): ""
+                                                        }
+                                                        {(getYear == year && getSemester == semester)?(
+                                                            <button className="button is-primary is-small" onClick={() => this.handleAddRequisite(sub.internal_code, "C")}>Co-requisite</button>
+                                                        ):""}
+                                                </Fragment>
+                                            )
                                         )
                                     ):(
                                         <button className="button is-small is-info" onClick={() => this.handleSelectButton(sub.internal_code)}>Select</button>
@@ -298,19 +344,6 @@ export default class SubjectInfo extends Component {
                         </div>
                     </div> 
                 </div>
-                <div className="column is-one-fifth">
-                    <h5 className="has-text-weight-bold mb-2 is-size-7">Search by Subject</h5>                        
-                    <div className="field">
-                        <div className="control">
-                            <span className="is-fullwidth is-small">
-                                <input type="text" className="input is-small"/>
-                            </span>
-                            <span className="icon is-small is-left">
-                            
-                            </span>
-                        </div>
-                    </div> 
-                </div>
             </div>
         </Fragment>
     ):"";
@@ -346,23 +379,22 @@ export default class SubjectInfo extends Component {
                                 <table className="table is-striped is-fullwidth is-hoverable">
                                     <thead>
                                         <tr>
-                                            <th className="is-narrow">Subject</th>
-                                            <th className="has-text-centered">Lec</th>
-                                            <th className="has-text-centered">Lab</th>
-                                            <th className="has-text-centered">Total Units</th>
+                                            <th>Subject</th>
+                                            <th>Description</th>
+                                            <th className="has-text-centered is-narrow">Total Units</th>
                                             <th className="has-text-centered">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>    
-                                        {loadPrerequisites}                                                                                       
+                                        {loadPrerequisites? loadPrerequisites:(
+                                            <tr><td colSpan="5" className="has-text-centered">No Data Found!</td></tr>
+                                        )}                                                                                     
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
-                </div>
-               <div className="column">
-               <div className="table-container is-size-7">
+                    <div className="table-container is-size-7">
                         <div className="message-header">
                             <p className="has-text-weight-bold">Co-requisite</p>    
                         </div>
@@ -371,21 +403,20 @@ export default class SubjectInfo extends Component {
                                 <table className="table is-striped is-fullwidth is-hoverable">
                                     <thead>
                                         <tr>
-                                            <th className="is-narrow">Subject</th>
-                                            <th className="has-text-centered">Lec</th>
-                                            <th className="has-text-centered">Lab</th>
-                                            <th className="has-text-centered">Total Units</th>
+                                        <th>Subject</th>
+                                            <th>Description</th>
+                                            <th className="has-text-centered is-narrow">Total Units</th>
                                             <th className="has-text-centered">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody> 
-                                                                                                                                  
+                                        {loadCorequisites?loadCorequisites:""}                                                                                    
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
-               </div>
+                </div>
                <div className="column">
                     <div className="table-container is-size-7">
                         <div className="message-header">
@@ -399,7 +430,7 @@ export default class SubjectInfo extends Component {
                                             <th className="is-narrow">Subject</th>
                                             <th className="has-text-centered">Description</th>
                                             <th className="has-text-centered">Course</th>
-                                            <th className="has-text-centered">School Year</th>
+                                            <th className="has-text-centered">Year</th>
                                             <th className="has-text-centered">Actions</th>
                                         </tr>
                                     </thead>

@@ -6,7 +6,7 @@ import SubjectInfo from '../elements/SubjectInfo'
 export default class componentName extends Component {
 
     state = {
-        subjects: null, year: null, semester: null, prerequisites: null, settings: false,selectedSubject: null,course_code: null
+        subjects: null, year: null, semester: null, requisites: null, settings: false,selectedSubject: null,course_code: null
     }
     handleSettingsButton = () => {
         const {settings} = this.state;
@@ -45,7 +45,7 @@ export default class componentName extends Component {
                 if(response.data) {          
                     this.setState({
                         subjects: response.data.subjects,
-                        prerequisites: response.data.prerequisites
+                        requisites: response.data.requisites
                     });
                 }
                 const {subjects} = this.state;
@@ -73,7 +73,7 @@ export default class componentName extends Component {
   render() {
       const {schoolYear, curriculumYear,courses,departments,inputChange,
         viewSubject,handleBackButton} = this.props;
-    const{year,subjects,semester,prerequisites,settings, selectedSubject, course_code} = this.state;
+    const{year,subjects,semester,requisites,settings, selectedSubject, course_code} = this.state;
     
     const yearLevel = ['', 'First', 'Second', 'Third', 'Fourth', 'Fifth'];
     const sem  = ['', 'First', 'Second'];
@@ -94,7 +94,7 @@ export default class componentName extends Component {
             var loadSubjects = subjects? subjects.filter(fil => fil.year_level == year && fil.semester == semester && fil.subject_type != 'L').map((sub, i)=>{
                 let labUnit = hasSubjectLab(subjects, sub.internal_code);
                 totalUnits = labUnit + parseInt(sub.units)+ totalUnits;
-                var getPrerequisites = prerequisites ? prerequisites.filter(remark => remark.internal_code === sub.internal_code).map((rem, i) => {
+                var getPrerequisites = requisites ? requisites.filter(remark => remark.internal_code === sub.internal_code).map((rem, i) => {
                     return ( 
                         <span key={i} className="ml-1 tag">{rem.subject_code}</span>
                     )
@@ -267,7 +267,7 @@ export default class componentName extends Component {
                 <SubjectInfo
                     subject = {subjects}
                     selectedSubject = {selectedSubject}
-                    prerequisites = {prerequisites}
+                    requisites = {requisites}
                     handleBackButton = {this.handleBackButton}
                     inputChange = {this.inputChange}
                     schoolYear = {this.props.schoolYear}

@@ -118,7 +118,7 @@ export default class ViewSchedule extends Component {
             <div className="has-text-centered">
                 <label className="has-text-danger is-size-7">If there is no schedule found, click <a>here</a> to request</label>
             </div>
-            <button className="button is-small" onClick={this.handleAlternativeButton}>{showHide? 'Hide': 'Alternatives'}</button>
+            <button className="button is-small" onClick={this.handleAlternativeButton}>{showHide? 'Hide': 'Equivalence'}</button>
             
             {
                 showHide &&
