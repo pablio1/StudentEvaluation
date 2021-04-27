@@ -1,12 +1,145 @@
 import React, { Component,Fragment } from 'react';
 import {hasSubjectLab} from '../../helpers/helper';
-import {getSubjectInfo,savePrerequisite,removePrerequisite} from '../../helpers/apiCalls';
+import {getSubjectInfo ,searchSubjects,savePrerequisite,removePrerequisite,getEquivalence,getAllCurriculum,
+        addEquivalence, removeEquivalence,getCourseList,getSubjectEquivalence} from '../../helpers/apiCalls';
 
 export default class SubjectInfo extends Component {
-    state = {subjects: null, requisites: null, year: null, semester:null, success: null,requisite_type: null}
+    state = {subjects: null, requisites: null, year: null, semester:null, success: null,requisite_type: null,
+         switchEquivalance: null, equivalence: null,selectedCourse: null, selectedYear: null, selectedDepartment:null,
+        curriculumYear: null, departments:null, courseList: null, courses: null, searchedSubject: null,search: null, equivalence:null,
+        subjectEquivalence: null}
     componentDidMount = () => {
        //console.log(this.props);
         this.handleLoadSubjectInfo();
+        getAllCurriculum()
+		.then(response => {  
+			if(response.data) {          
+				this.setState({
+					curriculumYear: response.data.year,
+					departments: response.data.departments,
+					courseList: response.data.course,
+				});
+			}
+		});
+    }
+    handleKeyDown = e => {
+        if (e.key === 'Enter') {
+            this.handleSearchResults();
+            //console.log(this.state.search);
+        }
+    }
+    handleSearchResults = () => {
+         var data = {
+            subject_name:this.state.search
+        }
+        searchSubjects(data)
+        .then(response => {
+            if(response.data){
+                this.setState({
+                    searchedSubject: response.data.subjects
+                });
+                console.log(response.data);
+            }
+        });
+    }
+    handleAddEquivalence = (internal_code, equival_code) =>{
+
+        var data = {
+            internal_code: internal_code,
+            equivalence_code: equival_code    
+        }
+
+        addEquivalence(data)
+        .then(response => {
+            if(response.data){
+                this.setState({
+                    success: response.data.success
+                });
+                this.loadEquivalence(internal_code);
+                console.log("success add", response.data);
+            }
+        });
+    }
+
+    loadEquivalence = (internal_code) =>{
+        var data = {
+            internal_code: internal_code
+        }
+        getSubjectEquivalence(data)
+        .then(response => {
+            if(response.data){
+                this.setState({
+                    subjectEquivalence: response.data.subjects
+                });
+                console.log("subjectEquivalence", response.data);
+            }
+        });
+    }
+    handleRemoveEquivalence = (internal_code, equival_code) => {
+        var data = {
+            internal_code: internal_code,
+            equivalence_code: equival_code    
+        }
+
+        removeEquivalence(data)
+        .then(response => {
+            if(response.data){
+                this.setState({
+                    success: response.data.success
+                });
+                this.loadEquivalence(internal_code);
+            }
+        });
+    }
+    handleSearchInput = input => e => {
+        this.setState({
+            [input]: e.target.value
+        });
+       
+        //console.log(e.target.value);
+    }
+    handleFilteredInput = input => e => {
+		
+        this.setState({
+            [input]: e.target.value
+        });
+		//console.log("data", input);
+
+		if(input == 'selectedYear'){
+			if(e.target.value != 0)
+			{
+				var data={
+					curr_year: e.target.value,
+					department: null
+				}
+				getCourseList(data)
+				.then(response => {
+					if(response.data){
+						this.setState({
+							courses: response.data.courses
+						});
+						//console.log("test", response.data);
+					}
+				});
+			}
+		}
+		if(input == 'selectedDepartment'){
+			const {selectedYear} = this.state;
+			var data={
+				curr_year: selectedYear,
+				department: e.target.value
+			}
+			console.log("data",data);
+			getCourseList(data)
+			.then(response => {
+				if(response.data){
+					this.setState({
+						courses: response.data.courses,
+					});
+					//console.log("test", response.data);
+				}
+			});
+		}
     }
     handleLoadSubjectInfo = () =>{
         const {schoolYear, course_code} = this.props;
@@ -26,6 +159,7 @@ export default class SubjectInfo extends Component {
                         requisites: response.data.requisites,
                         requisite_type: response.data.requisite_type
                     });
+                    console.log("requisite", response.data);
                 }
                 const {subjects} = this.state;
                 const year = [...new Set(subjects.map(item => item.year_level))]
@@ -54,14 +188,19 @@ export default class SubjectInfo extends Component {
                     success: response.data.success
                 });
                 this.handleLoadSubjectInfo();
+                
             }
         });
     }
     handleDeSelectButton = () => {
         this.props.handleDeSelectButton();
+        this.setState({
+            subjectEquivalence: null
+        });
     }
     handleSelectButton = (internal_code) => {
         this.props.handleSelectButton(internal_code);
+        this.loadEquivalence(internal_code);
     }
     handleRemoveRequisite = (internal_code, type) => {
         const {selectedSubject} = this.props;
@@ -83,18 +222,82 @@ export default class SubjectInfo extends Component {
         });
         
     }
+    handleCheckEquivalence = (subjects,internal_code) =>{
+        var found = false
+        var subject = subjects.map((sub, index)=>{
+            if(sub.internal_code == internal_code)
+                found= true;
+        });
+        console.log("subjects", subjects);
+        console.log("found", found);
+        return found;
+    }
+    handleSwitchButton = (descr, course_code) =>{
+        const {switchEquivalence} = this.state;
+        if(!switchEquivalence){
+            this.setState({
+                switchEquivalence: "checked"
+            })
+            var data = {
+                description: descr,
+                units: 0,
+                course_code: course_code,
+                curr_year: this.props.schoolYear
+            }
+            getEquivalence(data)
+            .then(response => {
+                if(response.data){
+                    this.setState({
+                        equivalence: response.data.equivalences
+                    })
+                    this.handleLoadSubjectInfo();
+                
+                    console.log("data equi",response.data);
+                    console.log("data",data);
+                }
+            });
+        }else{
+            this.setState({
+                switchEquivalence: null
+            })
+        }
+        console.log("test",switchEquivalence);
+        
+    }
   render() {
     const {subject,selectedSubject,handleBackButton, inputChange,schoolYear} = this.props;
-    const {subjects, requisites,year,semester,requisite_type} = this.state;
+    const {subjects, requisites,year,semester,requisite_type, switchEquivalence,equivalence,
+            curriculumYear,departments,courseList,selectedYear,searchedSubject,subjectEquivalence} = this.state;
     const yearLevel = ['', 'First', 'Second', 'Third', 'Fourth', 'Fifth'];
-    const sem  = ['', 'First', 'Second'];
+    const sem  = ['', 'First', 'Second', 'Summer'];
     var countPre = 0;
     var countCo = 0;
     var getYear = 0;
+    var getSubject = null;
+    var getSubjectDescription= null;
     var getSemester = 0;
+    var getCourseCode = null;
+    var loadCurriculumYear = curriculumYear ? curriculumYear.map((year, index)=>{
+        return (
+            <Fragment key={index}>
+                <option value={year.year}>{year.year} - {parseInt(year.year) + 1}</option>
+            </Fragment>
+        )
+    }) :"";
+
+    var loadDepartments = departments ? departments.map((course, index)=>{
+        return (
+            <Fragment key={index}>
+                <option value={course.course_department_abbr}>{course.course_department_abbr}</option>
+            </Fragment>
+        )
+    }):"";
     var loadSubjectInfo = subject?subject.filter(filt => filt.internal_code == selectedSubject).map((sub, index)=>{
         getYear = sub.year_level;
         getSemester = sub.semester;
+        getSubject = sub.subject_name;
+        getSubjectDescription = sub.descr_1;
+        getCourseCode = sub.course_code;
         return (
             <Fragment key={index}>
                 <tr>
@@ -170,18 +373,32 @@ export default class SubjectInfo extends Component {
     var loadHeader = year? year.map((year, index)=>{
         var loadSemester = semester ? semester.map((semester, index)=>{
             var totalUnits = 0;
+            var countSummer = 0;
+            var countRegular = 0;
             var loadSubjects = subjects? subjects.filter(fil => fil.year_level == year && fil.semester == semester && fil.subject_type != 'L').map((sub, i)=>{
                 let labUnit = hasSubjectLab(subjects, sub.internal_code);
                 totalUnits = labUnit + parseInt(sub.units)+ totalUnits;
                 var countPrerequisite = 0;
                 var countCorequisite = 0;
+                var countCore = 0;
+                var temp = null;
+                var loadSummerSubjects = subjects.filter(f => f.semester != 3 && f.year_level == year).map((summer, i)=>{
+                    countRegular++;
+                });
+                var loadSummerSubjects = subjects.filter(f => f.semester == 3 && f.year_level == year).map((summer, i)=>{
+                    countSummer++;
+                });
                 var coloredPrerequisites = requisites.filter(f => f.internal_code == selectedSubject && f.requisites == sub.internal_code).map((color, a)=>{
                     if(color.requisite_type == "P")
                         countPrerequisite++;
                     if(color.requisite_type == "C")
                         countCorequisite++;
                 });
-                var getPrerequisites = requisites ? requisites.filter(remark => remark.internal_code === sub.internal_code).map((rem, i) => {
+                var getCorequisites = requisites ? requisites.filter(remark => remark.internal_code === sub.internal_code && remark.requisite_type == "C").map((rem, i) => {
+                    countCore++;
+                    return rem.subject_code;
+               }) :"";
+                var getPrerequisites = requisites ? requisites.filter(remark => remark.internal_code === sub.internal_code && remark.requisite_type == "P").map((rem, i) => {
                     return ( 
                         <span key={i} className="ml-1 tag">{rem.subject_code}</span>
                     )
@@ -194,7 +411,7 @@ export default class SubjectInfo extends Component {
                             <td className="has-text-centered">{sub.units}</td>
                             <td className="has-text-centered">{labUnit}</td>
                             <td className="has-text-centered">{labUnit + parseInt(sub.units)}</td>
-                            <td className="has-text-centered">{getPrerequisites}</td>
+                            <td className="has-text-centered">{(countCore>0)?"Taken together with "+getCorequisites:getPrerequisites}</td>
                             <td className="has-text-centered">
                                 {sub.internal_code == selectedSubject?(
                                     <button className="button is-small is-danger" onClick={this.handleDeSelectButton}>Deselect</button>
@@ -234,41 +451,86 @@ export default class SubjectInfo extends Component {
                     </Fragment>
                 )
             }):"";
+
+            
+            /* var loadSummerSubjects = subjects.filter(f => f.semester == 3 && f.year == year ).map((summer, in)=>{}):""; */
             return (
+                
                 <Fragment>
-                    <div className="message-header">
-                        <p className="has-text-weight-bold">{sem[semester]} Semester</p>    
-                    </div>
-                    <div className="message-body p-0">
-                        <div className="table-container">
-                            <table className="table is-striped is-fullwidth is-hoverable">
-                                <thead>
-                                    <tr>
-                                        <th className="is-narrow">Subject Code</th>
-                                        <th>Descriptive Title</th>
-                                        <th className="has-text-centered">Lec</th>
-                                        <th className="has-text-centered">Lab</th>
-                                        <th className="has-text-centered">Total Units</th>
-                                        <th className="has-text-centered">Pre-requisites</th>
-                                        <th className="has-text-centered">{selectedSubject ? "Add To": "Action"}</th>
-                                    </tr>
-                                </thead>
-                                <tfoot>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td colSpan="2" className="has-text-right has-text-weight-bold"> Total</td>
-                                        <td className="has-text-centered has-text-weight-bold ">{totalUnits}</td>                                  
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                </tfoot>
-                                <tbody>   
-                                    {loadSubjects}                                                                                            
-                                </tbody>
-                            </table>
+                    {   (semester == 3 && countSummer != 0) &&
+                        <div>
+                            <div className="message-header">
+                                <p className="has-text-weight-bold">{sem[semester]} {semester != 3?"Semester":""}</p>    
+                            </div>
+                            <div className="message-body p-0">
+                                <div className="table-container">
+                                    <table className="table is-striped is-fullwidth is-hoverable">
+                                        <thead>
+                                            <tr>
+                                                <th className="is-narrow">Subject Code</th>
+                                                <th>Descriptive Title</th>
+                                                <th className="has-text-centered">Lec</th>
+                                                <th className="has-text-ceFntered">Lab</th>
+                                                <th className="has-text-centered">Total Units</th>
+                                                <th className="has-text-centered">Pre-requisites</th>
+                                                <th className="has-text-centered">{selectedSubject ? "Add To": "Action"}</th>
+                                            </tr>
+                                        </thead>
+                                        <tfoot>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td colSpan="2" className="has-text-right has-text-weight-bold"> Total</td>
+                                                <td className="has-text-centered has-text-weight-bold ">{totalUnits}</td>                                  
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                        <tbody>   
+                                            {loadSubjects}                                                                                            
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    }
+                    {   (semester != 3) &&
+                        <div>
+                            <div className="message-header">
+                                <p className="has-text-weight-bold">{sem[semester]} {semester != 3?"Semester":""}</p>    
+                            </div>
+                            <div className="message-body p-0">
+                                <div className="table-container">
+                                    <table className="table is-striped is-fullwidth is-hoverable">
+                                        <thead>
+                                            <tr>
+                                                <th className="is-narrow">Subject Code</th>
+                                                <th>Descriptive Title</th>
+                                                <th className="has-text-centered">Lec</th>
+                                                <th className="has-text-ceFntered">Lab</th>
+                                                <th className="has-text-centered">Total Units</th>
+                                                <th className="has-text-centered">Pre-requisites</th>
+                                                <th className="has-text-centered">{selectedSubject ? "Add To": "Action"}</th>
+                                            </tr>
+                                        </thead>
+                                        <tfoot>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td colSpan="2" className="has-text-right has-text-weight-bold"> Total</td>
+                                                <td className="has-text-centered has-text-weight-bold ">{totalUnits}</td>                                  
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                        <tbody>   
+                                            {loadSubjects}                                                                                            
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </Fragment>
             )
         }):"";
@@ -296,54 +558,35 @@ export default class SubjectInfo extends Component {
             </Fragment>
         )
     }):"";
+    var loadRequisitePanel = (
+        <Fragment>
+            <div className="column is-one-fifth">
+                <h5 className="has-text-weight-bold mb-2 is-size-7">Search Subject</h5>                        
+                <div className="field">
+                    <div className="control">
+                        <span className="is-fullwidth is-small">
+                            <input className="input is-info is-small" type="text" placeholder="Year" onKeyDown={this.handleKeyDown}  onChange={this.handleSearchInput('search')}/>
+                        </span>
+                    </div>
+                </div> 
+            </div>  
+        </Fragment>
+    );
     var loadSubjectInfoPanel = selectedSubject?(
         <Fragment>
             <div className="columns">
                 <div className="column is-one-fifth">
-                    <h5 className="has-text-weight-bold mb-2 is-size-7">Filter by Year</h5>                        
+                    <h5 className="has-text-weight-bold mb-2 is-size-7">Switch to Equivalence</h5>                        
                     <div className="field">
                         <div className="control has-icons-left">
-                            <span className="select is-fullwidth is-small">
-                                <select name="searchFilterCollege">
-                                    <option>Select School Year</option>
-                                </select>
-                            </span>
-                            <span className="icon is-small is-left">
-                            
-                            </span>
+                            <div className="field">
+                                <input id="switchRoundedInfo" type="checkbox" name="switchRoundedInfo" className="switch is-rounded is-info" checked={switchEquivalence} name="switch" onChange={()=> this.handleSwitchButton(getSubjectDescription, getCourseCode)} />
+                                <label for="switchRoundedInfo"></label>
+                            </div>
                         </div>
                     </div> 
                 </div>
-                <div className="column is-one-fifth">
-                    <h5 className="has-text-weight-bold mb-2 is-size-7">Filter by Department</h5>                        
-                    <div className="field">
-                        <div className="control has-icons-left">
-                            <span className="select is-fullwidth is-small">
-                                <select name="searchFilterCollege">
-                                    <option>Select Department</option>
-                                </select>
-                            </span>
-                            <span className="icon is-small is-left">
-                            
-                            </span>
-                        </div>
-                    </div> 
-                </div>
-                <div className="column is-one-fifth">
-                    <h5 className="has-text-weight-bold mb-2 is-size-7">Filter by Course</h5>                        
-                    <div className="field">
-                        <div className="control has-icons-left">
-                            <span className="select is-fullwidth is-small">
-                                <select name="searchFilterCollege">
-                                    <option>Select Course</option>
-                                </select>
-                            </span>
-                            <span className="icon is-small is-left">
-                            
-                            </span>
-                        </div>
-                    </div> 
-                </div>
+                {switchEquivalence ? "" : loadRequisitePanel}
             </div>
         </Fragment>
     ):"";
@@ -365,7 +608,19 @@ export default class SubjectInfo extends Component {
             </article>
         </Fragment>
     ) :"";
-
+    var loadSubjectEquivalence = subjectEquivalence? subjectEquivalence.filter(f => f.split_type == "S").map((subEquival, indx)=>{
+        return(
+            <Fragment>
+                <tr key={indx}>
+                    <td>{subEquival.subject_name}</td>
+                    <td>{subEquival.descr_1}</td>
+                    <td></td>
+                    <td>{subEquival.curr_year}</td>
+                    <td><button className="button is-small is-danger" onClick={()=>this.handleRemoveEquivalence(selectedSubject, subEquival.internal_code)}>Remove</button></td>                  
+                </tr>
+            </Fragment>
+        )
+    }):"";
     var loadRequisite = selectedSubject ? (
         <Fragment>
             <div className="columns">
@@ -435,13 +690,7 @@ export default class SubjectInfo extends Component {
                                         </tr>
                                     </thead>
                                     <tbody> 
-                                        <tr>
-                                            <td>Math 1</td>
-                                            <td>PAGBASA AT PAGSULAT TUNGO SA PANANALISIK</td>
-                                            <td>BSIT</td>
-                                            <td>2012</td>
-                                            <td><button className="button is-small is-danger">Cancel</button></td>
-                                        </tr>                                                                                   
+                                        {loadSubjectEquivalence}                                                                             
                                     </tbody>
                                 </table>
                             </div>
@@ -451,7 +700,99 @@ export default class SubjectInfo extends Component {
             </div>
             <hr></hr>
         </Fragment>
-    ):""
+    ):"";
+
+    // equivalence ? equivalence.filter(filter=> filter.split_type == "S").map((equival, index)
+    // subjects.filter(f => f.internal_code != equival.internal_code).map((subEq, a)
+    var loadEquivalence = equivalence ? equivalence.filter(filter=> filter.split_type == "S").map((equival, index)=>{
+        var loadSubject = subjectEquivalence.filter(filt => filt.internal_code == equival.internal_code), countEquivalence = loadSubject.length;
+
+        return (
+            <Fragment>
+                <tr key={index} className={this.handleCheckEquivalence(subjects,equival.internal_code)? 'is-hidden': ''}>
+                    <td>{equival.subject}</td>
+                    <td className="has-text-left">{equival.descr_1}</td>
+                    <td className="has-text-centered">{equival.units}</td>
+                    <td className="has-text-centered">{hasSubjectLab(equivalence, equival.internal_code)}</td>
+                    <td className="has-text-centered">{hasSubjectLab(equivalence, equival.internal_code)+equival.units}</td>
+                    <td className="has-text-centered">{equival.course}</td>
+                    <td className="has-text-centered">{equival.curr_year}</td>
+                    <td className="has-text-centered">
+                    {countEquivalence > 0 ? 
+                        <button className="button is-small is-danger" onClick={()=>this.handleRemoveEquivalence(selectedSubject, equival.internal_code)}>Cancel</button>
+                        :<button className="button is-small is-info" onClick={()=>this.handleAddEquivalence(selectedSubject, equival.internal_code)}>Equivalence</button>
+                    }
+                        
+                    </td>
+                </tr>
+            </Fragment>
+        )
+    }):"";
+    var loadStudentCurriculum = (
+        <Fragment>
+            <div className="message-header">
+                <p className="has-text-weight-bold">Bachelor of Science in Information Technology (BSIT)</p> 
+                <p className="has-text-weight-bold has-text-right">{schoolYear} - {parseInt(schoolYear) + 1}</p>   
+            </div>
+            <div className="message-body p-0 mt-3">
+                <div className="table-container">
+                    {loadHeader}
+                </div>
+            </div>
+        </Fragment>
+    );
+    var loadSearchedResults = searchedSubject ? searchedSubject.filter(filter=> filter.split_type == "S").map((search, index)=>{
+        var found = false;
+        var getRequisites = requisites ? requisites.filter(fil => fil.internal_code == selectedSubject && fil.requisites == search.internal_code).map((grequisite,i)=>{
+            if( grequisite.requisite_type == "P"){
+                found = true;
+            }
+        }):"";
+        return (
+            <Fragment>
+                <tr key={index}>
+                    <td>{search.subject}</td>
+                    <td className="has-text-centered">{search.descr_1}</td>
+                    <td className="has-text-centered">{hasSubjectLab(searchedSubject, search.internal_code)+search.units}</td>
+                    <td className="has-text-centered">{search.course}</td>
+                    <td className="has-text-centered">{search.curr_year}</td>
+                    <td className="has-text-centered">{
+                        (found? <button className="button is-small is-danger" onClick={() => this.handleRemoveRequisite(search.internal_code,"P")}>Cancel</button>: <button onClick={() => this.handleAddRequisite(search.internal_code,"P")} className="button is-small is-info">Pre-requisite</button>)
+                    }</td>
+                </tr>
+            </Fragment>
+        )
+    }):"";
+    var loadOtherCurriculum = (
+        <Fragment>
+            <div className="table-container is-size-7">
+                <div className="message-header">
+                    <p className="has-text-weight-bold">Search</p>    
+                </div>
+                <div className="message-body p-0">
+                    <div className="table-container">
+                        <table className="table is-striped is-fullwidth is-hoverable">
+                            <thead>
+                                <tr>
+                                    <th className="">Subject</th>
+                                    <th className="has-text-centered">Description</th>
+                                    <th className="has-text-centered">Total Units</th>
+                                    <th className="has-text-centered">Course</th>
+                                    <th className="has-text-centered">Curriculum</th>
+                                    <th className="has-text-centered">Add To</th>
+                                </tr>
+                            </thead>
+                            <tbody> 
+                             
+                                    {loadSearchedResults}
+                                                                                                               
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </Fragment>
+    ); 
     return (
       <Fragment>
           <div className="columns">
@@ -492,15 +833,39 @@ export default class SubjectInfo extends Component {
                 <div className="column is-fullwidth">
                     <div className="table-container is-size-7">
                         <div className="message">
-                            <div className="message-header">
-                                <p className="has-text-weight-bold">Bachelor of Science in Information Technology (BSIT)</p> 
-                                <p className="has-text-weight-bold has-text-right">{schoolYear} - {parseInt(schoolYear) + 1}</p>   
-                            </div>
-                            <div className="message-body p-0 mt-3">
-                                <div className="table-container">
-                                    {loadHeader}
-                                </div>
-                            </div>
+                            {switchEquivalence != "checked"?
+                            (searchedSubject == null ? loadStudentCurriculum:loadOtherCurriculum)
+                            :(
+                                <Fragment>
+                                    <div className="table-container is-size-7">
+                                        <div className="message-header">
+                                            <p className="has-text-weight-bold">Equivalence</p>    
+                                        </div>
+                                        <div className="message-body p-0">
+                                            <div className="table-container">
+                                                <table className="table is-striped is-fullwidth is-hoverable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th className="s">Subject</th>
+                                                            <th className="has-text-left">Description</th>
+                                                            <th className="has-text-centered">Lec</th>
+                                                            <th className="has-text-centered">Lec</th>
+                                                            <th className="has-text-centered">Total Units</th>
+                                                            <th className="has-text-centered">Course</th>
+                                                            <th className="has-text-centered">Year</th>
+                                                            <th className="has-text-centered">Add To</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody> 
+                                                        {loadEquivalence}                                                                          
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Fragment>
+                                )
+                            }
                         </div>
                     </div>
                 </div>

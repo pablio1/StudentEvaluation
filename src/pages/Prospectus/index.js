@@ -12,7 +12,7 @@ export class Prospectus extends Component {
     state = {
         selectedTab: null ,totalBehind: 0,subjects: null, schedules: null, selectedSubject: null,showModal: false,
         idnumber: null,yearlevel: null, requisites: null, grades: null, internal_code:null, subjectDescription: null,
-            getYear: null
+            getYear: null, years:null, semesters: null
     }
     componentDidMount = () => {
         getCurriculum(getLoggedUserDetails("idnumber"))
@@ -26,7 +26,15 @@ export class Prospectus extends Component {
                     schedules: response.data.schedules,
                     getYear: response.data.course_code
                 });
-                console.log("test getcur", response.data);
+                const {subjects} = this.state;
+                const year = [...new Set(subjects.map(item => item.year_level))]
+                this.setState({
+                    years: year
+                });
+                const semester = [...new Set(subjects.map(item => item.semester))]
+                this.setState({
+                    semesters: semester
+                });
             }
         });  
     }
@@ -64,7 +72,7 @@ export class Prospectus extends Component {
     }
     render() {
         const {selectedTab, totalBehind, subjects,requisites, grades, selectedSubject, schedules,
-                internal_code,subjectDescription,showModal} = this.state;
+                internal_code,subjectDescription,showModal,years,semesters} = this.state;
         let loadCurriculumTable = '';
         
         if(subjects)
@@ -77,6 +85,7 @@ export class Prospectus extends Component {
                     subjects = {subjects}
                     requisites = {requisites}
                     grades = {grades}
+                    semesters={semesters}
                     viewScheduleButtonHandle = {this.viewScheduleButtonHandle}
                 />
             );
@@ -119,6 +128,8 @@ export class Prospectus extends Component {
                             totalBehind = {totalBehind}
                             grades = {grades}
                             subjects = {subjects}
+                            years = {years}
+                            semesters = {semesters}
                             handleOnClickTab = {this.handleOnClickTab}
                             
                         />

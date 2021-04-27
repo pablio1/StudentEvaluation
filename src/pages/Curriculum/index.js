@@ -143,9 +143,9 @@ export class Curriculum extends Component {
 		var data = {
 			curr_year: schoolYear,
 			course: selectedCourse,
-			subjects: rows
+			subjects: this.state.rows
 		}
-		//console.log("data", data);
+		console.log("data", data);
 
 		saveCurriculum(data)
 		.then(response => {  
@@ -153,7 +153,15 @@ export class Curriculum extends Component {
 				this.setState({
 					success: response.data.success
 				});
+				if(response.data.success == 1){
+					this.setState({
+						schoolYear: null,
+						selectedCourse: null,
+						rows: null
+					});
+				}
 				this.loadCurriculum();
+				console.log("response", response.data);
 			}
 		});
 		
@@ -209,21 +217,24 @@ export class Curriculum extends Component {
 		}
 		if(input == 'selectedDepartment'){
 			const {schoolYear} = this.state;
-			var data={
-				curr_year: schoolYear,
-				department: e.target.value
-			}
-			console.log("data",data);
-			getCourseList(data)
-			.then(response => {
-				if(response.data){
-					this.setState({
-						courses: response.data.courses,
-						viewSubject: false
-					});
-					//console.log("test", response.data);
+			if(schoolYear != null){
+				var data={
+					curr_year: schoolYear,
+					department: e.target.value
 				}
-			});
+				console.log("data",data);
+				getCourseList(data)
+				.then(response => {
+					if(response.data){
+						this.setState({
+							courses: response.data.courses,
+							viewSubject: false
+						});
+						//console.log("test", response.data);
+					}
+				});
+			}
+			
 		}
     }
     handAddCurriculumButton = () => {

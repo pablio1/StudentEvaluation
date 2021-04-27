@@ -6,7 +6,8 @@ import SubjectInfo from '../elements/SubjectInfo'
 export default class componentName extends Component {
 
     state = {
-        subjects: null, year: null, semester: null, requisites: null, settings: false,selectedSubject: null,course_code: null
+        subjects: null, year: null, semester: null, requisites: null, settings: false,selectedSubject: null,course_code: null,
+        course_description: null, course_abbr:null
     }
     handleSettingsButton = () => {
         const {settings} = this.state;
@@ -29,10 +30,12 @@ export default class componentName extends Component {
         });
     }
 
-    handleGetSubjectInfo = (course_code) =>{
+    handleGetSubjectInfo = (course_code,course_description, course_abbr) =>{
 		this.props.handleViewSubjectButton();
         this.setState({
-            course_code: course_code
+            course_code: course_code,
+            course_description: course_description,
+            course_abbr: course_abbr
         });
         const data ={
             curr_year: this.props.schoolYear,
@@ -73,7 +76,7 @@ export default class componentName extends Component {
   render() {
       const {schoolYear, curriculumYear,courses,departments,inputChange,
         viewSubject,handleBackButton} = this.props;
-    const{year,subjects,semester,requisites,settings, selectedSubject, course_code} = this.state;
+    const{year,subjects,semester,requisites,settings, selectedSubject, course_code, course_abbr,course_description} = this.state;
     
     const yearLevel = ['', 'First', 'Second', 'Third', 'Fourth', 'Fifth'];
     const sem  = ['', 'First', 'Second'];
@@ -183,7 +186,7 @@ export default class componentName extends Component {
                     <td>{course.course_description}</td>
                     <td>{course.course_department}</td>
                     <td>{course.course_department_abbr}</td>
-                    <td><button className="is-small button is-info" onClick={() => this.handleGetSubjectInfo(course.course_code)}>View Subjects</button></td>
+                    <td><button className="is-small button is-info" onClick={() => this.handleGetSubjectInfo(course.course_code, course.course_description, course.course_abbr)}>View Subjects</button></td>
                 </tr>
             </Fragment>
         )
@@ -210,7 +213,27 @@ export default class componentName extends Component {
                 </tbody>
             </table>
         </Fragment>
-    ):settings?"":loadHeader;
+    ):settings?"":(
+    <Fragment>
+        <div className="columns mt-4">
+            <div className="column is-fullwidth">
+                <div className="table-container is-size-7">
+                    <div className="message">
+                        <div className="message-header">
+                            <p className="has-text-weight-bold">{course_description} ({course_abbr})</p> 
+                            <p className="has-text-weight-bold has-text-right">{schoolYear} - {parseInt(schoolYear) + 1}</p>   
+                        </div>
+                        <div className="message-body p-0 mt-3">
+                            <div className="table-container">
+                                {loadHeader}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </Fragment>
+    );
     return (
         <Fragment>
             {!settings &&
@@ -272,6 +295,8 @@ export default class componentName extends Component {
                     inputChange = {this.inputChange}
                     schoolYear = {this.props.schoolYear}
                     course_code = {course_code}
+                    course_abbr = {course_abbr}
+                    course_description = {course_description}
                     handleDeSelectButton = {this.handleDeSelectButton}
                     handleSelectButton = {this.handleSelectButton}
                 />

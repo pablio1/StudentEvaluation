@@ -32,52 +32,32 @@ export default class ProspectusTabs extends Component {
         return Math.abs(countSubject-countGrade);
     }
   render() {
-    const {first, second, third, fourth, all, totalBehind } = this.props;
+    const {first, second, third, fourth, all, totalBehind, years,semesters} = this.props;
     const {selectedTab} = this.state;
+    const yearLevel = ['', 'First', 'Second', 'Third', 'Fourth', 'Fifth'];
+    const sem  = ['', 'First', 'Second','Summer'];
+    
+    var loadTabs = years? years.map((year, index)=>{
+        return(
+            <Fragment key={index}>
+                <button name="pending" className={"button " + (selectedTab == year ? "is-info is-selected" : "")} onClick={() => this.handleOnClickTab(year, first)}>
+                    <span className="icon is-small">
+                        <i className="fas fa-book is-success"></i>
+                    </span>
+                    <span>{yearLevel[year]} Year</span>
+                    {
+                        (this.getTotalBehind(year) > 0 && getLoggedUserDetails("yearlevel") > year) ? 
+                        (<span className="tag is-danger ml-3">{this.getTotalBehind(year)}</span>) : ""
+                    }
+                </button>
+            </Fragment>
+        )
+    }):"";
     return (
       <Fragment>
         
             <div className="buttons has-addons is-centered">                
-                <button name="pending" className={"button " + (selectedTab === '1' ? "is-info is-selected" : "")} onClick={() => this.handleOnClickTab('1', first)}>
-                    <span className="icon is-small">
-                        <i className="fas fa-book is-success"></i>
-                    </span>
-                    <span>First Year</span>
-                    {
-                        (this.getTotalBehind(1) > 0 && getLoggedUserDetails("yearlevel") > 1) ? 
-                        (<span className="tag is-danger ml-3">{this.getTotalBehind(1)}</span>) : ""
-                    }
-                </button>
-                <button name="approved" className={"button " + (selectedTab === '2' ? "is-info is-selected" : "")} onClick={() => this.handleOnClickTab('2', second)}>
-                    <span className="icon is-small">
-                        <i className="fas fa-book is-success"></i>
-                    </span>
-                    <span>Second Year</span>
-                    {
-                        (this.getTotalBehind(2) > 0 && getLoggedUserDetails("yearlevel") > 2) ? 
-                        (<span className="tag is-danger ml-3">{this.getTotalBehind(2)}</span>) : ""
-                    }
-                </button>
-                <button name="approved" className={"button "+(selectedTab === '3'? "is-info is-selected":"")} onClick={() => this.handleOnClickTab('3', third)}>
-                    <span className="icon is-small">
-                        <i className="fas fa-book"></i>
-                    </span>
-                    <span>Third Year</span>
-                    {
-                        (this.getTotalBehind(3) > 0 && getLoggedUserDetails("yearlevel") > 3) ? 
-                        (<span className="tag is-danger ml-3">{this.getTotalBehind(3)}</span>) : ""
-                    }
-                </button>
-                <button name="approved" className={"button "+(selectedTab === '4'? "is-info is-selected":"")} onClick={() => this.handleOnClickTab('4', fourth)}>
-                    <span className="icon is-small">
-                        <i className="fas fa-book"></i>
-                    </span>
-                    <span>Fourth Year</span>
-                    {
-                        (this.getTotalBehind(4) > 0 && getLoggedUserDetails("yearlevel") > 4) ? 
-                        (<span className="tag is-danger ml-3">{this.getTotalBehind(4)}</span>) : ""
-                    }
-                </button>
+                {loadTabs}
                 <button name="approved" className={"button "+(selectedTab === "all"? "is-info is-selected":"")} onClick={() => this.handleOnClickTab("all", all)}>
                     <span className="icon is-small">
                         <i className="fas fa-book"></i>

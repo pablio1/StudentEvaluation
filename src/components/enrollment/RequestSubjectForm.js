@@ -83,7 +83,6 @@ export default class RequestSubjectForm extends Component {
                             <div className="control">                                                    
                                 <div className="field">
                                     <div className="control">
-                                        <div className="is-small">
                                             <Select 
                                                 options={sanitizedSubjectList}
                                                 name="name"
@@ -92,7 +91,6 @@ export default class RequestSubjectForm extends Component {
                                                 placeholder="Subject"
                                                 onChange={handleOnChangeSelect}
                                             />
-                                        </div>
                                     </div>
                                 </div>
                             </div>

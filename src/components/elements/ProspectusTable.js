@@ -51,20 +51,25 @@ export default class ProspectusTable extends Component {
     }
   render() {
       const{grade} = this.state
-      const {subjects,selectedTab, requisites, grades} = this.props;
-      var totalUnitsForFirstSem = 0;
+      const {subjects,selectedTab, requisites, grades,semesters} = this.props;
+      
       var countRemark = 0;
-      var loadFirstSem = subjects? subjects.filter(filt => filt.year_level == selectedTab 
-            && filt.semester == 1 && (filt.split_type == "S" || filt.split_type == null || filt.split_type == "")).map((sub, index) => {
+      const semArray  = ['', 'First', 'Second','Summer'];
+      var loadSemesters = semesters ? semesters.map((sem, first)=>{
+        var totalUnits = 0;
+        var filteredSummerSubjects = subjects.filter(filt => filt.year_level == selectedTab && filt.semester == sem), countSummer = filteredSummerSubjects.length;
+
+        var loadSubjects = subjects? subjects.filter(filt => filt.year_level == selectedTab 
+            && filt.semester == sem && (filt.split_type == "S")).map((sub, index) => {
                 let labUnit = hasSubjectLab(subjects, sub.internal_code);
-               totalUnitsForFirstSem = labUnit + parseInt(sub.units)+ totalUnitsForFirstSem;
+               totalUnits = labUnit + parseInt(sub.units)+ totalUnits;
                var getGrades = getGrade(grades, sub.internal_code)
                var getPrerequisites = requisites ? requisites.filter(remark => remark.internal_code === sub.internal_code).map((rem, i) => {
                     return ( 
                         <span key={i} className={"ml-1 tag"+ (getGrade(grades,rem.requisites) < 3 && getGrade(grades,rem.requisites) != 0? " is-success":" is-danger")}>{rem.subject_code}</span>
                     )
                }) :"";
-            return(
+               return(
                 <Fragment key={index}>
                     <tr className = {getGrades > 3? "has-background-danger-light": ""}>
                         <td>{sub.subject_name}</td>
@@ -80,126 +85,93 @@ export default class ProspectusTable extends Component {
 
             )
         }):"";
-        var totalUnitsForSecondSem = 0;
-        var loadSecondSem = subjects? subjects.filter(filt => filt.year_level == selectedTab 
-            && filt.semester == 2 && (filt.split_type == "S" || filt.split_type == null || filt.split_type == "")).map((sub, index) => {
-                let labUnit = hasSubjectLab(subjects, sub.internal_code);
-               totalUnitsForSecondSem = labUnit + parseInt(sub.units)+ totalUnitsForSecondSem;
-               var getGrades = getGrade(grades, sub.internal_code);
-               
-               var getPrerequisites = requisites ? requisites.filter(remark => remark.internal_code === sub.internal_code).map((rem, i) => {
-                   countRemark++;
-                    return (
-                        <span key={i} className={"ml-1 tag"+ (getGrade(grades,rem.requisites) < 3 && getGrade(grades,rem.requisites) != 0 ? " is-success":" is-danger")}>{rem.subject_code}</span>
-                    )
-               }) :"";
-            return(
-                <Fragment key={index}>
-                    <tr className = {getGrades > 3? "has-background-danger-light": ""}>
-                        <td>{sub.subject_name}</td>
-                        <td>{sub.descr_1}</td>
-                        <td className="has-text-centered">{sub.units}</td>
-                        <td className="has-text-centered">{labUnit}</td>
-                        <td className="has-text-centered">{parseInt(sub.units)+ labUnit}</td>
-                        <td>{getPrerequisites}</td>
-                        <td className="has-text-centered has-text-weight-bold">{getGrades !== 0 && getGrades}</td>
-                        <td>{ this.viewButtonVisibity(getGrades) && this.checkPrerequisiteStatus(sub.internal_code)? <button className="button is-info is-small" onClick={() => this.viewScheduleButtonHandle(sub.subject_name, sub.internal_code, sub.descr_1)}>View Schedules</button>  : "" }</td>
-                    </tr> 
-                </Fragment>
-
-            )
-        }):"";
-
+        return(
+            <Fragment key={first}>
+                {(countSummer != 0 && sem == 3) &&
+                    <div>
+                        <div className="message-header">
+                            <p className="has-text-weight-bold">{semArray[sem]} {sem == 3?'':'Semester'}</p>   
+                        </div>
+                        <div className="message-body p-0">
+                            <div className="table-container is-size-7">
+                                <table className="table is-striped is-fullwidth is-hoverable">
+                                    <thead>
+                                        <tr>
+                                            <th className="is-narrow">Subject Code</th>
+                                            <th>Descriptive Title</th>
+                                            <th className="has-text-centered">Lec</th>
+                                            <th className="has-text-centered">Lab</th>
+                                            <th className="has-text-centered">Total Units</th>
+                                            <th className="has-text-left">Pre-requisites</th>
+                                            <th className="has-text-centered">Grade</th>
+                                            <th className="has-text-centered">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td colSpan="2" className="has-text-right has-text-weight-bold"> Total</td>
+                                            <td className="has-text-centered has-text-weight-bold">{totalUnits}</td>
+                                            <td></td>
+                                            <td colSpan="2" className="is-narrow">                                        
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                        {loadSubjects}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+                {sem != 3 &&
+                    <div>
+                        <div className="message-header">
+                            <p className="has-text-weight-bold">{semArray[sem]} {sem == 3?'':'Semester'}</p>   
+                        </div>
+                        <div className="message-body p-0">
+                            <div className="table-container is-size-7">
+                                <table className="table is-striped is-fullwidth is-hoverable">
+                                    <thead>
+                                        <tr>
+                                            <th className="is-narrow">Subject Code</th>
+                                            <th>Descriptive Title</th>
+                                            <th className="has-text-centered">Lec</th>
+                                            <th className="has-text-centered">Lab</th>
+                                            <th className="has-text-centered">Total Units</th>
+                                            <th className="has-text-left">Pre-requisites</th>
+                                            <th className="has-text-centered">Grade</th>
+                                            <th className="has-text-centered">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td colSpan="2" className="has-text-right has-text-weight-bold"> Total</td>
+                                            <td className="has-text-centered has-text-weight-bold">{totalUnits}</td>
+                                            <td></td>
+                                            <td colSpan="2" className="is-narrow">                                        
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                        {loadSubjects}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </Fragment>
+        )
+      }):"";
     return (
         <Fragment>
             <article className="message mb-0 pb-0 is-small">
-                <div className="message-header">
-                    <p className="has-text-weight-bold">FIRST SEMESTER</p>   
-                </div>
-                <div className="message-body p-0">
-                    <div className="table-container is-size-7">
-                        <table className="table is-striped is-fullwidth is-hoverable">
-                            <thead>
-                                <tr>
-                                    <th className="is-narrow">Subject Code</th>
-                                    <th>Descriptive Title</th>
-                                    <th className="has-text-centered">Lec</th>
-                                    <th className="has-text-centered">Lab</th>
-                                    <th className="has-text-centered">Total Units</th>
-                                    <th className="has-text-left">Pre-requisites</th>
-                                    <th className="has-text-centered">Grade</th>
-                                    <th className="has-text-centered">Actions</th>
-                                </tr>
-                            </thead>
-                            <tfoot>
-                                <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td colSpan="2" className="has-text-right has-text-weight-bold"> Total</td>
-                                    <td className="has-text-centered has-text-weight-bold">{totalUnitsForFirstSem}</td>
-                                    <td></td>
-                                    <td colSpan="2" className="is-narrow">                                        
-                                    </td>
-                                </tr>
-                            </tfoot>
-                            <tbody>
-                                { loadFirstSem ? loadFirstSem : (    
-                                        <tr>
-                                            <td></td><td></td><td></td>
-                                            <td></td><td></td><td></td>
-                                            <td></td>
-                                        </tr>
-                                    )
-                                } 
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </article>
-            <article className="message mb-0 pb-0 is-small">
-                <div className="message-header">
-                    <p className="has-text-weight-bold">SECOND SEMESTER</p>   
-                            
-                </div>
-                <div className="message-body p-0">
-                    <div className="table-container">
-                        <table className="table is-striped is-fullwidth is-hoverable">
-                            <thead>
-                                <tr>
-                                    <th className="is-narrow">Subject Code</th>
-                                    <th>Descriptive Title</th>
-                                    <th className="has-text-centered">Lec</th>
-                                    <th className="has-text-centered">Lab</th>
-                                    <th className="has-text-centered">Total Units</th>
-                                    <th className="has-text-left">Pre-requisites</th>
-                                    <th className="has-text-centered">Grade</th>
-                                    <th className="has-text-centered">Actions</th>
-                                </tr>
-                            </thead>
-                            <tfoot>
-                                <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td colSpan="2" className="has-text-right has-text-weight-bold"> Total</td>
-                                    <td className="has-text-centered has-text-weight-bold ">{totalUnitsForSecondSem}</td>
-                                    <td></td>
-                                    <td colSpan="2" className="is-narrow">                                        
-                                    </td>
-                                </tr>
-                            </tfoot>
-                            <tbody>
-                                { loadSecondSem ? loadSecondSem : (    
-                                        <tr>
-                                            <td></td><td></td><td></td>
-                                            <td></td><td></td><td></td>
-                                            <td></td>
-                                        </tr>
-                                    )
-                                }                                                                                                 
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                {loadSemesters}
             </article>
         </Fragment>
     );

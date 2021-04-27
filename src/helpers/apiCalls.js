@@ -983,4 +983,57 @@ export function savePrerequisite(data){
         console.log(error);
     });
 }
+export function getEquivalence(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_GET_EQUIVALENCE, data, {headers})
+    .catch(error => {
+        console.log(error);
+    });
+}
+export function addEquivalence(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_ADD_EQUIVALENCE, data, {headers})
+    .catch(error => {
+        console.log(error);
+    });
+}
+export function removeEquivalence(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_REMOVE_EQUIVALENCE, data, {headers})
+    .catch(error => {
+        console.log(error);
+    });
+}
+
+export function searchSubjects(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_SEARCH_SUBJECT, data, {headers})
+    .catch(error => {
+        console.log(error);
+    });
+}
+
+export function getSubjectEquivalence(data){
+    const headers = { 
+        'Access-Control-Allow-Origin': '*',
+        'Authorization': 'Bearer ' + store.get("token")
+    };
+    return axios.post(process.env.REACT_APP_API_GET_SUBJECT_EQUIVALENCE, data, {headers})
+    .catch(error => {
+        console.log(error);
+    });
+}
+
 
